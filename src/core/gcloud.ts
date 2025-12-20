@@ -1,4 +1,4 @@
-import execa from 'execa';
+import { execa } from 'execa';
 import { logger } from './logger.js';
 
 export interface GcloudInstance {

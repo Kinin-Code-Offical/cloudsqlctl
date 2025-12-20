@@ -73,6 +73,30 @@ If you encounter issues:
 
 Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
+## Development
+
+### Prerequisites
+
+- Node.js 22 (LTS)
+- PowerShell 5.1 or later
+
+### Build
+
+To build the project and generate the single executable:
+
+```powershell
+# Install dependencies
+npm install
+
+# Build the source code (TypeScript -> CJS)
+npm run build
+
+# Package into a single executable (SEA)
+npm run package
+```
+
+The executable will be generated at `bin/cloudsqlctl.exe`.
+
 ## License
 
 MIT

@@ -3,7 +3,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import { PATHS } from './config.js';
 import { logger } from './logger.js';
-import execa from 'execa';
+import { execa } from 'execa';
 
 export async function isRunning(): Promise<boolean> {
     if (!await fs.pathExists(PATHS.PID_FILE)) {

@@ -39,8 +39,8 @@ export async function downloadProxy(version: string) {
     try {
         const releaseUrl = `https://api.github.com/repos/${GITHUB_REPO}/releases/tags/${version}`;
         const response = await axios.get(releaseUrl);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const assets = response.data.assets;
+        logger.info(`Found ${assets.length} assets: ${assets.map((a: any) => a.name).join(', ')}`);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const asset = assets.find((a: any) => a.name === ASSET_NAME);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
