@@ -14,7 +14,7 @@ jest.unstable_mockModule('fs-extra', () => ({
 
 // Mock execa
 jest.unstable_mockModule('execa', () => ({
-    default: jest.fn(),
+    execa: jest.fn(),
 }));
 
 // Mock child_process
@@ -34,15 +34,24 @@ describe('Proxy Module', () => {
     });
 
     it('should return false if PID file does not exist', async () => {
-        (fs.pathExists as jest.Mock).mockReturnValue(Promise.resolve(false));
+        (fs.pathExists as unknown as jest.Mock).mockReturnValue(Promise.resolve(false));
         const running = await isRunning();
         expect(running).toBe(false);
     });
 
     it('should start proxy if not running', async () => {
-        (fs.pathExists as jest.Mock).mockReturnValue(Promise.resolve(false));
+        (fs.pathExists as unknown as jest.Mock).mockReturnValue(Promise.resolve(false));
         const pid = await startProxy('test-connection');
         expect(pid).toBe(12345);
         expect(fs.writeFile).toHaveBeenCalled();
+    });
+
+    it('should stop proxy if running', async () => {
+        (fs.pathExists as unknown as jest.Mock).mockReturnValue(Promise.resolve(true));
+        (fs.readFile as unknown as jest.Mock).mockReturnValue(Promise.resolve('12345'));
+
+        await stopProxy();
+
+        expect(fs.remove).toHaveBeenCalled();
     });
 });

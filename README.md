@@ -65,9 +65,9 @@ Configuration and logs are stored in:
 
 If you encounter issues:
 
-1.  Run `cloudsqlctl doctor` to check for common problems.
-2.  Check the logs in `%LOCALAPPDATA%\CloudSQLCTL\logs`.
-3.  Ensure `gcloud` is installed and authenticated (`gcloud auth login`).
+1. Run `cloudsqlctl doctor` to check for common problems.
+2. Check the logs in `%LOCALAPPDATA%\CloudSQLCTL\logs`.
+3. Ensure `gcloud` is installed and authenticated (`gcloud auth login`).
 
 ## Contributing
 
