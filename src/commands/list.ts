@@ -8,7 +8,7 @@ export const listCommand = new Command('list')
     .action(async (options) => {
         try {
             const instances = await listInstances();
-            
+
             if (options.json) {
                 console.log(JSON.stringify(instances, null, 2));
                 return;
