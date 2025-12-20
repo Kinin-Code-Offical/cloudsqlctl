@@ -3,6 +3,8 @@ import { Command } from 'commander';
 import { installCommand } from './commands/install.js';
 import { updateCommand } from './commands/update.js';
 import { selectCommand } from './commands/select.js';
+import { listCommand } from './commands/list.js';
+import { connectCommand } from './commands/connect.js';
 import { startCommand } from './commands/start.js';
 import { stopCommand } from './commands/stop.js';
 import { statusCommand } from './commands/status.js';
@@ -21,6 +23,8 @@ program
 program.addCommand(installCommand);
 program.addCommand(updateCommand);
 program.addCommand(selectCommand);
+program.addCommand(listCommand);
+program.addCommand(connectCommand);
 program.addCommand(startCommand);
 program.addCommand(stopCommand);
 program.addCommand(statusCommand);

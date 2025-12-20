@@ -27,7 +27,9 @@ cloudsqlctl [command] [options]
 | :-------- | :------------------------------------------------------- |
 | `install` | Download and install the Cloud SQL Proxy binary.         |
 | `update`  | Update the Cloud SQL Proxy binary to the latest version. |
+| `list`    | List available Cloud SQL instances.                      |
 | `select`  | Interactively select a Cloud SQL instance to proxy.      |
+| `connect` | Connect to a specific instance directly.                 |
 | `start`   | Start the proxy for the selected instance.               |
 | `stop`    | Stop the running proxy process.                          |
 | `restart` | Restart the proxy process.                               |
@@ -45,7 +47,11 @@ cloudsqlctl install
 # 2. Select your database instance
 cloudsqlctl select
 
-# 3. Start the proxy
+# Or list and connect directly
+cloudsqlctl list
+cloudsqlctl connect project:region:instance
+
+# 3. Start the proxy (if using select)
 cloudsqlctl start
 
 # 4. Check status
