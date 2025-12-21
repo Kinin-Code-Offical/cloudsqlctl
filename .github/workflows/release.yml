@@ -57,6 +57,36 @@ jobs:
           if (-not (Test-Path artifacts/cloudsqlctl-windows-x64.zip)) { throw "Missing zip bundle" }
           if (-not (Test-Path artifacts/SHA256SUMS.txt)) { throw "Missing SHA256SUMS.txt" }
 
+      - name: Delete existing release assets (same tag)
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $tag = $env:GITHUB_REF -replace 'refs/tags/', ''
+          $headers = @{
+            Authorization = "Bearer $env:GITHUB_TOKEN"
+            Accept = "application/vnd.github+json"
+          }
+          try {
+            $release = Invoke-RestMethod -Method Get -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases/tags/$tag" -Headers $headers
+          } catch {
+            if ($_.Exception.Response.StatusCode.value__ -eq 404) {
+              Write-Host "No existing release for $tag"
+              exit 0
+            }
+            throw
+          }
+
+          if (-not $release) {
+            Write-Host "No existing release data for $tag"
+            exit 0
+          }
+
+          foreach ($asset in $release.assets) {
+            Write-Host "Deleting asset $($asset.name)"
+            Invoke-RestMethod -Method Delete -Uri "https://api.github.com/repos/$env:GITHUB_REPOSITORY/releases/assets/$($asset.id)" -Headers $headers
+          }
+
       - name: Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
