@@ -170,22 +170,26 @@ export function pickAsset(release: ReleaseInfo, mode: 'auto' | 'installer' | 'ex
 export async function applyUpdateInstaller(installerPath: string, silent: boolean, elevate: boolean) {
     logger.info('Launching installer...');
 
-    const args = [];
+    const args: string[] = [];
     if (silent) {
         args.push('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART');
     }
 
-    if (elevate) {
-        // Use PowerShell Start-Process -Verb RunAs
-        // To prevent command injection, we pass arguments via environment variables.
-        const envVars: Record<string, string> = {
-            'PS_INSTALLER_PATH': installerPath,
-            'PS_INSTALLER_ARGS': args.join(' ')
-        };
+    // Use PowerShell Start-Process with environment variables for both elevated and non-elevated runs
+    const envVars: Record<string, string> = {
+        'PS_INSTALLER_PATH': installerPath,
+        'PS_INSTALLER_ARGS': args.join(' ')
+    };
 
+    const basePsCommand = `
+        $p = [System.Environment]::GetEnvironmentVariable('PS_INSTALLER_PATH')
+        $a = [System.Environment]::GetEnvironmentVariable('PS_INSTALLER_ARGS')
+    `.trim();
+
+    if (elevate) {
+        // Elevated: use -Verb RunAs
         const psCommand = `
-            $p = [System.Environment]::GetEnvironmentVariable('PS_INSTALLER_PATH')
-            $a = [System.Environment]::GetEnvironmentVariable('PS_INSTALLER_ARGS')
+            ${basePsCommand}
             Start-Process -FilePath $p -ArgumentList $a -Verb RunAs -Wait
         `.trim();
 
@@ -193,7 +197,15 @@ export async function applyUpdateInstaller(installerPath: string, silent: boolea
             env: { ...process.env, ...envVars }
         });
     } else {
-        await execa(installerPath, args);
+        // Non-elevated: run without -Verb RunAs
+        const psCommand = `
+            ${basePsCommand}
+            Start-Process -FilePath $p -ArgumentList $a -Wait
+        `.trim();
+
+        await execa('powershell', ['-NoProfile', '-NonInteractive', '-Command', psCommand], {
+            env: { ...process.env, ...envVars }
+        });
     }
 }
 
