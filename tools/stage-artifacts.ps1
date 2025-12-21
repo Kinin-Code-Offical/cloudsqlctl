@@ -18,15 +18,37 @@ $ExeSource = Join-Path $BinDir "cloudsqlctl.exe"
 $SetupSource = Join-Path $DistDir "cloudsqlctl-setup.exe"
 
 if (-not (Test-Path $ExeSource)) { Write-Error "Missing binary: $ExeSource"; exit 1 }
-if (-not (Test-Path $SetupSource)) { Write-Error "Missing installer: $SetupSource"; exit 1 }
+
+if (Test-Path $SetupSource) {
+    Copy-Item $SetupSource -Destination $ArtifactsDir
+}
+else {
+    Write-Warning "Installer not found at $SetupSource. Skipping."
+}
 
 Copy-Item $ExeSource -Destination $ArtifactsDir
-Copy-Item $SetupSource -Destination $ArtifactsDir
 
 # 3. Generate SHA256 Checksums
 $ChecksumFile = Join-Path $ArtifactsDir "SHA256SUMS.txt"
-Get-ChildItem $ArtifactsDir -Filter "*.exe" | Get-FileHash -Algorithm SHA256 | ForEach-Object {
-    "$($_.Hash)  $($_.Path | Split-Path -Leaf)"
+
+function Get-Sha256Hash {
+    param($FilePath)
+    try {
+        $fileStream = [System.IO.File]::OpenRead($FilePath)
+        $hasher = [System.Security.Cryptography.SHA256]::Create()
+        $hashBytes = $hasher.ComputeHash($fileStream)
+        $fileStream.Close()
+        return [BitConverter]::ToString($hashBytes).Replace("-", "").ToLower()
+    }
+    catch {
+        Write-Error "Failed to calculate hash for ${FilePath}: $_"
+        exit 1
+    }
+}
+
+Get-ChildItem $ArtifactsDir -Filter "*.exe" | ForEach-Object {
+    $hash = Get-Sha256Hash -FilePath $_.FullName
+    "$hash  $($_.Name)"
 } | Out-File -Encoding ASCII $ChecksumFile
 
 # 4. Create Distribution Zip
