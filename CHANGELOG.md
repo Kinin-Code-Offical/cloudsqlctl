@@ -2,6 +2,12 @@
 
 # Changelog
 
+## [0.4.8] - 2025-12-21
+
+### Changed
+
+- new release with minimal changes
+
 ## [0.4.7] - 2025-12-21
 
 ### Changed
@@ -89,4 +95,5 @@
 - **Build**: Resolved duplicate exports in service module.
 - **Types**: Fixed TypeScript errors in self-heal and service commands.
 - **Linting**: Corrected Markdown formatting issues.
+
 
