@@ -12,6 +12,12 @@ import {
     applyUpdatePortableExe,
     detectInstallContext
 } from '../core/selfUpdate.js';
+import { isAdmin } from '../system/powershell.js';
+
+function isSystemScopePath(filePath: string): boolean {
+    const normalized = filePath.toLowerCase();
+    return normalized.includes('\\program files') || normalized.includes('\\program files (x86)') || normalized.includes('\\programdata');
+}
 
 export const upgradeCommand = new Command('upgrade')
     .description('Upgrade cloudsqlctl to the latest version')
@@ -87,12 +93,22 @@ export const upgradeCommand = new Command('upgrade')
 
             // 5. Apply Update
             const context = options.asset === 'auto' ? detectInstallContext() : options.asset;
+            const admin = await isAdmin();
+            const systemScope = isSystemScopePath(process.execPath);
+
+            if (context === 'installer' && !admin && options.elevate === false) {
+                throw new Error('System-scope update requires elevation. Re-run without --no-elevate or run as admin.');
+            }
 
             if (context === 'installer' || asset.name.endsWith('.exe') && asset.name.includes('setup')) {
                 if (!options.json) logger.info('Applying update via installer...');
-                await applyUpdateInstaller(downloadPath, options.silent !== false, options.elevate !== false);
+                const shouldElevate = !admin && options.elevate !== false;
+                await applyUpdateInstaller(downloadPath, options.silent !== false, shouldElevate);
             } else {
                 if (!options.json) logger.info('Applying portable update...');
+                if (systemScope && !admin) {
+                    throw new Error('Portable updates to system-scope installs require admin. Use the installer or re-run as admin.');
+                }
                 // For portable, we need to know the target exe. 
                 // If running packaged, it's process.execPath.
                 // If running node, we can't really update "node.exe", so we assume dev env and warn.
