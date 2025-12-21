@@ -95,5 +95,3 @@
 - **Build**: Resolved duplicate exports in service module.
 - **Types**: Fixed TypeScript errors in self-heal and service commands.
 - **Linting**: Corrected Markdown formatting issues.
-
-

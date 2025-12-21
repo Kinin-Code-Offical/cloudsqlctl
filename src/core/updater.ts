@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import path from 'path';
 import { PATHS } from '../system/paths.js';
 import { logger } from './logger.js';
+import { escapeRegExp } from './utils.js';
 
 const GITHUB_REPO = 'GoogleCloudPlatform/cloud-sql-proxy';
 const ASSET_NAME = 'cloud-sql-proxy.x64.exe';
@@ -46,7 +47,8 @@ export async function downloadProxy(version: string, targetPath: string = PATHS.
         // Extract checksum from release body
         const { body } = response.data;
         // Regex to match: | [cloud-sql-proxy.x64.exe](...) | <hash> |
-        const checksumRegex = new RegExp(`\\| \\[${ASSET_NAME.replace(/\./g, '\\.')}\\]\\(.*?\\) \\| ([a-f0-9]{64}) \\|`);
+        const escapedAssetName = escapeRegExp(ASSET_NAME);
+        const checksumRegex = new RegExp(`\\| \\[${escapedAssetName}\\]\\(.*?\\) \\| ([a-f0-9]{64}) \\|`);
         const match = body.match(checksumRegex);
 
         if (match && match[1]) {

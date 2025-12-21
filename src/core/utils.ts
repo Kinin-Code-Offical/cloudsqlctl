@@ -12,3 +12,7 @@ export async function getTail(filePath: string, lines: number = 10): Promise<str
 export function sleep(ms: number) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
+
+export function escapeRegExp(string: string): string {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}

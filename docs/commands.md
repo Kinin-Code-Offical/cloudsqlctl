@@ -328,4 +328,3 @@ Options:
   --json          Output status in JSON format
   -h, --help      display help for command
 ```
-

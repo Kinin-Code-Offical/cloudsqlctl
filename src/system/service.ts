@@ -4,7 +4,7 @@ import { logger } from '../core/logger.js';
 
 export async function isServiceInstalled(): Promise<boolean> {
     try {
-        await runPs(`Get-Service -Name "${SERVICE_NAME}" -ErrorAction Stop`);
+        await runPs('& { Get-Service -Name $args[0] -ErrorAction Stop }', [SERVICE_NAME]);
         return true;
     } catch {
         return false;
@@ -13,7 +13,7 @@ export async function isServiceInstalled(): Promise<boolean> {
 
 export async function isServiceRunning(): Promise<boolean> {
     try {
-        const status = await runPs(`(Get-Service -Name "${SERVICE_NAME}").Status`);
+        const status = await runPs('& { (Get-Service -Name $args[0]).Status }', [SERVICE_NAME]);
         return status === 'Running';
     } catch {
         return false;
@@ -54,8 +54,8 @@ export async function installService(instance: string, port: number = 5432, extr
 
     const binPath = buildServiceBinPath(SYSTEM_PATHS.PROXY_EXE, instance, port, extraArgs);
 
-    // Use New-Service with single-quoted BinaryPathName
-    await runPs(`New-Service -Name "${SERVICE_NAME}" -BinaryPathName '${binPath}' -StartupType Automatic`);
+    // Use New-Service with arguments to avoid injection
+    await runPs('& { New-Service -Name $args[0] -BinaryPathName $args[1] -StartupType Automatic }', [SERVICE_NAME, binPath]);
 }
 
 export async function updateServiceBinPath(instance: string, port: number = 5432, extraArgs: string[] = []) {
@@ -73,8 +73,8 @@ export async function updateServiceBinPath(instance: string, port: number = 5432
 
     const binPath = buildServiceBinPath(SYSTEM_PATHS.PROXY_EXE, instance, port, extraArgs);
 
-    // Use CIM/WMI to update service path
-    await runPs(`$svc = Get-CimInstance Win32_Service -Filter "Name='${SERVICE_NAME}'"; Invoke-CimMethod -InputObject $svc -MethodName Change -Arguments @{ PathName = '${binPath}' }`);
+    // Use CIM/WMI to update service path with arguments
+    await runPs('& { $svc = Get-CimInstance Win32_Service -Filter "Name=$($args[0])"; Invoke-CimMethod -InputObject $svc -MethodName Change -Arguments @{ PathName = $args[1] } }', [SERVICE_NAME, binPath]);
 }
 
 export async function uninstallService() {
@@ -90,7 +90,7 @@ export async function uninstallService() {
     await stopService();
 
     // Use sc.exe delete instead of Remove-Service for better compatibility
-    await runPs(`sc.exe delete "${SERVICE_NAME}"`);
+    await runPs('& { sc.exe delete $args[0] }', [SERVICE_NAME]);
 }
 
 export async function startService() {
@@ -98,7 +98,7 @@ export async function startService() {
         throw new Error('Admin privileges required to start service.');
     }
     logger.info(`Starting service ${SERVICE_NAME}...`);
-    await runPs(`Start-Service -Name "${SERVICE_NAME}"`);
+    await runPs('& { Start-Service -Name $args[0] }', [SERVICE_NAME]);
 }
 
 export async function stopService() {
@@ -106,7 +106,7 @@ export async function stopService() {
         throw new Error('Admin privileges required to stop service.');
     }
     logger.info(`Stopping service ${SERVICE_NAME}...`);
-    await runPs(`Stop-Service -Name "${SERVICE_NAME}" -Force`);
+    await runPs('& { Stop-Service -Name $args[0] -Force }', [SERVICE_NAME]);
 }
 
 export async function setServiceStartupType(type: 'Automatic' | 'Manual' | 'Disabled' | 'Delayed') {
@@ -116,10 +116,10 @@ export async function setServiceStartupType(type: 'Automatic' | 'Manual' | 'Disa
 
     if (type === 'Delayed') {
         // Delayed start is a special case of Automatic
-        await runPs(`Set-Service -Name "${SERVICE_NAME}" -StartupType Automatic`);
-        await runPs(`sc.exe config "${SERVICE_NAME}" start= delayed-auto`);
+        await runPs('& { Set-Service -Name $args[0] -StartupType Automatic }', [SERVICE_NAME]);
+        await runPs('& { sc.exe config $args[0] start= delayed-auto }', [SERVICE_NAME]);
     } else {
-        await runPs(`Set-Service -Name "${SERVICE_NAME}" -StartupType ${type}`);
+        await runPs('& { Set-Service -Name $args[0] -StartupType $args[1] }', [SERVICE_NAME, type]);
     }
     logger.info(`Service startup type set to ${type}.`);
 }

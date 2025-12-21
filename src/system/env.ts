@@ -8,24 +8,24 @@ export async function setEnv(name: string, value: string, scope: 'Machine' | 'Us
         throw new Error('Admin privileges required to set system environment variables.');
     }
     logger.info(`Setting ${scope} environment variable: ${name}=${value}`);
-    await runPs(`[Environment]::SetEnvironmentVariable("${name}", "${value}", "${scope}")`);
+    await runPs('& { [Environment]::SetEnvironmentVariable($args[0], $args[1], $args[2]) }', [name, value, scope]);
 }
 
 export async function setupEnvironment(scope: 'Machine' | 'User' = 'User', force: boolean = false) {
     logger.info(`Configuring ${scope} environment variables...`);
     const paths = scope === 'Machine' ? SYSTEM_PATHS : USER_PATHS;
 
-    const currentHome = await runPs(`[Environment]::GetEnvironmentVariable("${ENV_VARS.HOME}", "${scope}")`);
+    const currentHome = await runPs('& { [Environment]::GetEnvironmentVariable($args[0], $args[1]) }', [ENV_VARS.HOME, scope]);
     if (force || !currentHome) {
         await setEnv(ENV_VARS.HOME, paths.HOME, scope);
     }
 
-    const currentLogs = await runPs(`[Environment]::GetEnvironmentVariable("${ENV_VARS.LOGS}", "${scope}")`);
+    const currentLogs = await runPs('& { [Environment]::GetEnvironmentVariable($args[0], $args[1]) }', [ENV_VARS.LOGS, scope]);
     if (force || !currentLogs) {
         await setEnv(ENV_VARS.LOGS, paths.LOGS, scope);
     }
 
-    const currentProxy = await runPs(`[Environment]::GetEnvironmentVariable("${ENV_VARS.PROXY_PATH}", "${scope}")`);
+    const currentProxy = await runPs('& { [Environment]::GetEnvironmentVariable($args[0], $args[1]) }', [ENV_VARS.PROXY_PATH, scope]);
     if (force || !currentProxy) {
         await setEnv(ENV_VARS.PROXY_PATH, paths.PROXY_EXE, scope);
     }
@@ -38,9 +38,9 @@ export async function checkEnvironment(scope: 'Machine' | 'User' = 'User'): Prom
 }
 
 export async function checkEnvironmentDetailed(scope: 'Machine' | 'User' = 'User'): Promise<{ ok: boolean, problems: string[], values: { home: string, logs: string, proxy: string } }> {
-    const home = await runPs(`[Environment]::GetEnvironmentVariable("${ENV_VARS.HOME}", "${scope}")`);
-    const logs = await runPs(`[Environment]::GetEnvironmentVariable("${ENV_VARS.LOGS}", "${scope}")`);
-    const proxy = await runPs(`[Environment]::GetEnvironmentVariable("${ENV_VARS.PROXY_PATH}", "${scope}")`);
+    const home = await runPs('& { [Environment]::GetEnvironmentVariable($args[0], $args[1]) }', [ENV_VARS.HOME, scope]);
+    const logs = await runPs('& { [Environment]::GetEnvironmentVariable($args[0], $args[1]) }', [ENV_VARS.LOGS, scope]);
+    const proxy = await runPs('& { [Environment]::GetEnvironmentVariable($args[0], $args[1]) }', [ENV_VARS.PROXY_PATH, scope]);
 
     const problems: string[] = [];
 

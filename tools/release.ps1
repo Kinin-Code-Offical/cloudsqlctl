@@ -217,6 +217,7 @@ if (Test-Path "CHANGELOG.md") {
     $existing = Get-Content "CHANGELOG.md" -Raw
     $existing = $existing -replace '(?ms)^<!-- markdownlint-disable MD024 -->\s*', ''
     $existing = $existing -replace '(?ms)^# Changelog\s*', ''
+    $existing = $existing.TrimEnd()
     
     $escapedVer = [regex]::Escape($Version)
     if ($existing -notmatch "## \[$escapedVer\]") {

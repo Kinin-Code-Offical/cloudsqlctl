@@ -106,7 +106,7 @@ authCommand.command('set-service-account')
             if (scope === 'Machine') {
                 // Hardening ACLs
                 // Remove inheritance, grant Administrators and SYSTEM full access
-                await runPs(`icacls "${dest}" /inheritance:r /grant:r "Administrators:(R)" "SYSTEM:(R)"`);
+                await runPs('& { icacls $args[0] /inheritance:r /grant:r "Administrators:(R)" "SYSTEM:(R)" }', [dest]);
                 logger.info('Applied security ACLs to credentials file.');
             }
 

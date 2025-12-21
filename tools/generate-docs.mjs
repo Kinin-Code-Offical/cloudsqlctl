@@ -80,7 +80,7 @@ async function generateDocs() {
     content += '```text\n' + (await runCli([cmd, '--help'])) + '\n```\n\n';
   }
 
-  await fs.writeFile(DOCS_FILE, content);
+  await fs.writeFile(DOCS_FILE, content.trim() + '\n');
   console.log(`Documentation generated at ${DOCS_FILE}`);
 }
 
