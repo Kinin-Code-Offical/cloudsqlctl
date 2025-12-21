@@ -17,6 +17,16 @@
 
 Download the latest installer (`cloudsqlctl-setup.exe`) from the [Releases](https://github.com/Kinin-Code-Offical/cloudsqlctl/releases) page.
 
+## Documentation
+
+Full documentation is available in the [docs](docs/) folder:
+
+- [**Wiki Home**](docs/Home.md)
+- [Installation Guide](docs/Installation.md)
+- [Configuration & Setup](docs/Configuration.md)
+- [Command Reference](docs/commands.md)
+- [Troubleshooting](docs/Troubleshooting.md)
+
 ## Quick Start
 
 Run the setup wizard to configure gcloud, authentication, and the proxy:
