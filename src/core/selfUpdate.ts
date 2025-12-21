@@ -1,0 +1,231 @@
+import axios from 'axios';
+import fs from 'fs-extra';
+import path from 'path';
+import crypto from 'crypto';
+import semver from 'semver';
+import { execa } from 'execa';
+import { logger } from './logger.js';
+import { writeConfig } from './config.js';
+
+const REPO_OWNER = 'Kinin-Code-Offical';
+const REPO_NAME = 'cloudsqlctl';
+const GITHUB_API_URL = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest`;
+const TIMEOUT_MS = 60000;
+const MAX_RETRIES = 2;
+
+export interface ReleaseInfo {
+    tag_name: string;
+    assets: Array<{
+        name: string;
+        browser_download_url: string;
+    }>;
+    body: string;
+}
+
+export interface UpdateStatus {
+    currentVersion: string;
+    latestVersion: string;
+    updateAvailable: boolean;
+    releaseInfo?: ReleaseInfo;
+}
+
+export async function getLatestRelease(): Promise<ReleaseInfo> {
+    try {
+        const response = await axios.get(GITHUB_API_URL, {
+            timeout: TIMEOUT_MS,
+            headers: { 'User-Agent': 'cloudsqlctl/upgrade' }
+        });
+        return response.data;
+    } catch (error) {
+        logger.error('Failed to fetch latest release info', error);
+        throw error;
+    }
+}
+
+export async function checkForUpdates(currentVersion: string): Promise<UpdateStatus> {
+    const release = await getLatestRelease();
+    // Remove 'v' prefix if present for semver comparison
+    const latestVer = release.tag_name.replace(/^v/, '');
+    const currentVer = currentVersion.replace(/^v/, '');
+
+    const updateAvailable = semver.gt(latestVer, currentVer);
+
+    // Update config with check info
+    try {
+        await writeConfig({
+            lastUpdateCheck: new Date().toISOString(),
+            lastUpdateAvailableVersion: updateAvailable ? release.tag_name : undefined
+        });
+    } catch (_e) {
+        // Ignore config write errors during check
+    }
+
+    return {
+        currentVersion,
+        latestVersion: release.tag_name,
+        updateAvailable,
+        releaseInfo: release
+    };
+}
+
+export async function fetchSha256Sums(release: ReleaseInfo): Promise<Map<string, string>> {
+    const checksumAsset = release.assets.find(a => a.name === 'SHA256SUMS.txt');
+    if (!checksumAsset) {
+        throw new Error('SHA256SUMS.txt not found in release assets');
+    }
+
+    const response = await axios.get(checksumAsset.browser_download_url, {
+        responseType: 'text',
+        timeout: TIMEOUT_MS
+    });
+
+    const sums = new Map<string, string>();
+    const lines = response.data.split('\n');
+    for (const line of lines) {
+        const parts = line.trim().split(/\s+/);
+        if (parts.length >= 2) {
+            // Format: <hash>  <filename>
+            sums.set(parts[1], parts[0]);
+        }
+    }
+    return sums;
+}
+
+export async function downloadFile(url: string, destPath: string): Promise<void> {
+    await fs.ensureDir(path.dirname(destPath));
+
+    let attempt = 0;
+    while (attempt <= MAX_RETRIES) {
+        try {
+            const response = await axios({
+                url,
+                method: 'GET',
+                responseType: 'stream',
+                timeout: TIMEOUT_MS,
+                headers: { 'User-Agent': 'cloudsqlctl/upgrade' }
+            });
+
+            const writer = fs.createWriteStream(destPath);
+            response.data.pipe(writer);
+
+            await new Promise<void>((resolve, reject) => {
+                writer.on('finish', () => resolve());
+                writer.on('error', reject);
+            });
+            return;
+        } catch (error) {
+            attempt++;
+            if (attempt > MAX_RETRIES) throw error;
+            logger.warn(`Download failed, retrying... (${error})`);
+        }
+    }
+}
+
+export async function verifySha256(filePath: string, expectedHash: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+        const hash = crypto.createHash('sha256');
+        const stream = fs.createReadStream(filePath);
+        stream.on('error', err => reject(err));
+        stream.on('data', chunk => hash.update(chunk));
+        stream.on('end', () => {
+            const fileHash = hash.digest('hex');
+            resolve(fileHash.toLowerCase() === expectedHash.toLowerCase());
+        });
+    });
+}
+
+export function detectInstallContext(): 'installer' | 'portable' {
+    const { execPath } = process;
+    // If running from source (node.exe), default to portable logic but likely won't work well
+    if (path.basename(execPath).toLowerCase() === 'node.exe') {
+        return 'portable';
+    }
+
+    // Check if running from Program Files
+    if (execPath.includes('Program Files')) {
+        return 'installer';
+    }
+
+    return 'portable';
+}
+
+export function pickAsset(release: ReleaseInfo, mode: 'auto' | 'installer' | 'exe'): { name: string, url: string } {
+    const context = mode === 'auto' ? detectInstallContext() : mode;
+
+    let assetNamePattern: RegExp;
+    if (context === 'installer') {
+        assetNamePattern = /cloudsqlctl-setup\.exe$/i;
+    } else {
+        assetNamePattern = /cloudsqlctl\.exe$/i;
+    }
+
+    const asset = release.assets.find(a => assetNamePattern.test(a.name));
+    if (!asset) {
+        throw new Error(`Could not find suitable asset for mode '${context}' (pattern: ${assetNamePattern})`);
+    }
+
+    return { name: asset.name, url: asset.browser_download_url };
+}
+
+export async function applyUpdateInstaller(installerPath: string, silent: boolean, elevate: boolean) {
+    logger.info('Launching installer...');
+
+    const args = [];
+    if (silent) {
+        args.push('/VERYSILENT', '/SUPPRESSMSGBOXES', '/NORESTART');
+    }
+
+    if (elevate) {
+        // Use PowerShell Start-Process -Verb RunAs
+        const psCommand = `Start-Process -FilePath "${installerPath}" -ArgumentList "${args.join(' ')}" -Verb RunAs -Wait`;
+        await execa('powershell', ['-NoProfile', '-Command', psCommand]);
+    } else {
+        await execa(installerPath, args);
+    }
+}
+
+export async function applyUpdatePortableExe(newExePath: string, targetExePath: string) {
+    logger.info('Applying portable update...');
+
+    const updateScriptPath = path.join(path.dirname(targetExePath), 'apply-update.ps1');
+    const backupPath = `${targetExePath}.bak`;
+    const { pid } = process;
+
+    // PowerShell script to wait for PID exit, swap files, and restart
+    const psScript = `
+param($PidToWait, $NewExe, $TargetExe, $BackupExe)
+
+Write-Host "Waiting for process $PidToWait to exit..."
+try {
+    $p = Get-Process -Id $PidToWait -ErrorAction SilentlyContinue
+    if ($p) { $p.WaitForExit() }
+} catch {}
+
+Write-Host "Swapping binaries..."
+Move-Item -Path $TargetExe -Destination $BackupExe -Force -ErrorAction SilentlyContinue
+Move-Item -Path $NewExe -Destination $TargetExe -Force
+
+Write-Host "Starting new version..."
+Start-Process -FilePath $TargetExe -ArgumentList "--version"
+`;
+
+    await fs.writeFile(updateScriptPath, psScript);
+
+    // Spawn detached PowerShell process
+    const child = execa('powershell', [
+        '-NoProfile',
+        '-ExecutionPolicy', 'Bypass',
+        '-File', updateScriptPath,
+        '-PidToWait', pid.toString(),
+        '-NewExe', newExePath,
+        '-TargetExe', targetExePath,
+        '-BackupExe', backupPath
+    ], {
+        detached: true,
+        stdio: 'ignore'
+    });
+
+    child.unref();
+    logger.info('Update script spawned. Exiting to allow update to proceed.');
+    process.exit(0);
+}

@@ -12,15 +12,17 @@
   },
   "scripts": {
     "build": "tsup",
-    "package": "npm run build && powershell -ExecutionPolicy Bypass -File tools/build-sea.ps1",
+    "setup:package": "npm run build && powershell -ExecutionPolicy Bypass -File tools/build-sea.ps1",
     "smoke:exe": "powershell -NoProfile -Command \"./bin/cloudsqlctl.exe --version; ./bin/cloudsqlctl.exe paths\"",
-    "installer": "powershell -ExecutionPolicy Bypass -File tools/build-installer.ps1",
-    "stage": "powershell -ExecutionPolicy Bypass -File tools/stage-artifacts.ps1",
+    "setup:installer": "powershell -ExecutionPolicy Bypass -File tools/build-installer.ps1",
+    "setup:stage": "powershell -ExecutionPolicy Bypass -File tools/stage-artifacts.ps1",
+    "setup:clean": "npm install && npm ci && npm run setup:package && npm run setup:installer && npm run setup:stage",
     "docs:generate": "node tools/generate-docs.mjs",
     "docs:check": "npm run docs:generate && git diff --exit-code docs/commands.md",
     "lint": "eslint src",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --passWithNoTests",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "git:release": "git add . && git commit -m \"chore: new release with minimal changes\" && powershell -ExecutionPolicy Bypass -File tools/release.ps1 -Version minimal"
   },
   "keywords": [
     "windows",
@@ -42,6 +44,7 @@
     "extract-zip": "2.0.1",
     "fs-extra": "^11.2.0",
     "inquirer": "^9.2.15",
+    "semver": "7.7.3",
     "winston": "^3.11.0"
   },
   "devDependencies": {
@@ -50,6 +53,7 @@
     "@types/inquirer": "^9.0.7",
     "@types/jest": "30.0.0",
     "@types/node": "^25.0.3",
+    "@types/semver": "7.7.1",
     "eslint": "^9.0.0",
     "globals": "^16.5.0",
     "husky": "^9.0.11",

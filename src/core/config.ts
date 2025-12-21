@@ -8,6 +8,7 @@ export interface AppConfig {
     proxyPort?: number;
     autoUpdate?: boolean;
     lastUpdateCheck?: string;
+    lastUpdateAvailableVersion?: string;
     gcloudPath?: string;
 }
 

@@ -110,17 +110,34 @@ function Get-ChangelogNotes([string]$ChangelogPath, [string]$Ver) {
 Assert-Command git
 Assert-Command npm
 
-if ($Version -notmatch '^\d+\.\d+\.\d+([\-+][0-9A-Za-z\.\-]+)?$') {
-    throw "Version must look like SemVer (e.g. 0.3.2). Got: $Version"
-}
-$Tag = "v$Version"
-
 Write-Step "Locating repository root"
 $repoRoot = (& git rev-parse --show-toplevel) 2>$null
 if (-not $repoRoot) { throw "Not a git repository (git rev-parse failed)." }
 Set-Location $repoRoot
 
 if (-not (Test-Path "package.json")) { throw "package.json not found in repo root: $repoRoot" }
+
+# --- Version Handling ---
+if ($Version -eq "minimal") {
+    $pkg = Get-Json "package.json"
+    $current = [string]$pkg.version
+    if ($current -match '^(\d+)\.(\d+)\.(\d+)(.*)$') {
+        $major = $Matches[1]
+        $minor = $Matches[2]
+        $patch = [int]$Matches[3] + 1
+        $suffix = $Matches[4]
+        $Version = "$major.$minor.$patch$suffix"
+        Write-Host "Minimal version requested. Incrementing $current -> $Version"
+    }
+    else {
+        throw "Could not parse current version from package.json: $current"
+    }
+}
+
+if ($Version -notmatch '^\d+\.\d+\.\d+([\-+][0-9A-Za-z\.\-]+)?$') {
+    throw "Version must look like SemVer (e.g. 0.3.2). Got: $Version"
+}
+$Tag = "v$Version"
 
 Write-Step "Validating git working tree"
 $dirty = (& git status --porcelain)
@@ -154,7 +171,8 @@ if (Test-Path "CHANGELOG.md") {
     Write-Step "Prepending CHANGELOG.md entry"
     $date = Get-Date -Format "yyyy-MM-dd"
     $existing = Get-Content "CHANGELOG.md" -Raw
-    $entry = "## [$Version] - $date`n`n### Added`n- Release $Version`n`n"
+    $existing = $existing -replace '(?ms)^# Changelog\s*', ''
+    $entry = "# Changelog`n`n## [$Version] - $date`n`n### Added`n- Release $Version`n`n"
     $escapedVer = [regex]::Escape($Version)
     if ($existing -notmatch "## \[$escapedVer\]") {
         Set-Content "CHANGELOG.md" ($entry + $existing) -Encoding UTF8

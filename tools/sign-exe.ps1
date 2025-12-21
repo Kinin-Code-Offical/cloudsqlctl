@@ -1,10 +1,14 @@
 param(
     [string]$ExePath = "bin\cloudsqlctl.exe",
     [string]$CertPath = "$env:CLOUDSQLCTL_SIGN_CERT",
-    [string]$CertPassword = "$env:CLOUDSQLCTL_SIGN_PWD"
+    [System.Security.SecureString]$CertPassword
 )
 
 $ErrorActionPreference = "Stop"
+
+if (-not $CertPassword -and $env:CLOUDSQLCTL_SIGN_PWD) {
+    $CertPassword = ConvertTo-SecureString -String $env:CLOUDSQLCTL_SIGN_PWD -AsPlainText -Force
+}
 
 if (-not (Test-Path $ExePath)) {
     Write-Warning "Executable not found at $ExePath. Skipping signing."
@@ -21,8 +25,7 @@ Write-Host "Signing $ExePath with certificate $CertPath..."
 
 try {
     if ($CertPassword) {
-        $securePass = ConvertTo-SecureString -String $CertPassword -AsPlainText -Force
-        $cert = Get-PfxCertificate -FilePath $CertPath -Password $securePass
+        $cert = Get-PfxCertificate -FilePath $CertPath -Password $CertPassword
     }
     else {
         $cert = Get-PfxCertificate -FilePath $CertPath
