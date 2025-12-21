@@ -4,16 +4,26 @@
 
 ## Features
 
+- **Setup Wizard**: Interactive `setup` command to get everything running in minutes.
+- **Authentication Management**: Built-in `auth` command for gcloud login, ADC setup, and Service Account management.
 - **Automated Installation**: Downloads and verifies the official Cloud SQL Proxy binary.
 - **Instance Management**: Lists and selects Cloud SQL instances using your active `gcloud` configuration.
-- **Process Management**: Starts, stops, and restarts the proxy as a background process with PID tracking.
-- **Structured Logging**: JSON logging with automatic masking of sensitive tokens, stored in `%LOCALAPPDATA%`.
-- **Diagnostics**: Built-in `doctor` command to check environment health (gcloud, ADC, network).
+- **Process Management**: Starts, stops, and restarts the proxy as a background process or Windows Service.
+- **Structured Logging**: JSON logging with automatic masking of sensitive tokens.
+- **Diagnostics**: Built-in `doctor` command to check environment health (gcloud, ADC, network, service).
 - **Self-Update**: Easily update the proxy binary to the latest version.
 
 ## Installation
 
-Download the latest `cloudsqlctl.exe` from the [Releases](https://github.com/your-org/cloudsqlctl/releases) page and add it to your PATH.
+Download the latest installer (`cloudsqlctl-setup.exe`) from the [Releases](https://github.com/Kinin-Code-Offical/cloudsqlctl/releases) page.
+
+## Quick Start
+
+Run the setup wizard to configure gcloud, authentication, and the proxy:
+
+```powershell
+cloudsqlctl setup
+```
 
 ## Usage
 
@@ -23,29 +33,53 @@ cloudsqlctl [command] [options]
 
 ### Commands
 
-| Command   | Description                                                   |
-| :-------- | :------------------------------------------------------------ |
-| `install` | Download and install the Cloud SQL Proxy binary (User scope). |
-| `update`  | Update the Cloud SQL Proxy binary to the latest version.      |
-| `list`    | List available Cloud SQL instances.                           |
-| `select`  | Interactively select a Cloud SQL instance to proxy.           |
-| `connect` | Connect to a specific instance directly.                      |
-| `start`   | Start the proxy for the selected instance.                    |
-| `stop`    | Stop the running proxy process.                               |
-| `service` | Manage Windows Service (Admin required).                      |
-| `env`     | Manage environment variables (User/Machine scope).            |
-| `gcloud`  | Manage Google Cloud CLI (install portable version).           |
-| `restart` | Restart the proxy process.                                    |
-| `status`  | Check if the proxy is running and view details.               |
-| `logs`    | View the tail of the proxy logs.                              |
-| `doctor`  | Run diagnostics to verify environment setup.                  |
-| `reset`   | Reset configuration and remove local files.                   |
+| Command   | Description                                              |
+| :-------- | :------------------------------------------------------- |
+| `setup`   | Interactive setup wizard (Recommended for first run).    |
+| `auth`    | Manage authentication (Login, ADC, Service Accounts).    |
+| `install` | Download and install the Cloud SQL Proxy binary.         |
+| `update`  | Update the Cloud SQL Proxy binary to the latest version. |
+| `list`    | List available Cloud SQL instances.                      |
+| `select`  | Interactively select a Cloud SQL instance to proxy.      |
+| `connect` | Connect to a specific instance directly.                 |
+| `start`   | Start the proxy for the selected instance.               |
+| `stop`    | Stop the running proxy process.                          |
+| `service` | Manage Windows Service (Admin required).                 |
+| `env`     | Manage environment variables (User/Machine scope).       |
+| `gcloud`  | Manage Google Cloud CLI (install portable version).      |
+| `status`  | Check if the proxy is running and view details.          |
+| `logs`    | View the tail of the proxy logs.                         |
+| `doctor`  | Run diagnostics to verify environment setup.             |
+| `reset`   | Reset configuration and remove local files.              |
 
-### Example
+### Authentication Modes
+
+**1. Developer Mode (Interactive)**
+Uses your personal Google Cloud credentials via `gcloud`.
 
 ```powershell
-# 1. Install the proxy
-cloudsqlctl install
+cloudsqlctl auth login
+cloudsqlctl auth adc
+```
+
+**2. Machine/Service Mode (Service Account)**
+Uses a Service Account JSON key. Ideal for automated environments or Windows Services.
+
+```powershell
+# Securely install service account key (Machine scope requires Admin)
+cloudsqlctl auth set-service-account --file "C:\path\to\key.json" --scope Machine
+```
+
+### Windows Service
+
+Run the proxy as a Windows Service for background persistence.
+
+```powershell
+# Install service (Admin required)
+cloudsqlctl service install --instance "my-project:region:instance" --port 5432
+
+# Start service
+cloudsqlctl service start
 
 # 2. Select your database instance
 cloudsqlctl select

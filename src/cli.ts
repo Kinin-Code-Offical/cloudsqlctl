@@ -17,14 +17,20 @@ import { ps1Command } from './commands/ps1.js';
 import { repairCommand } from './commands/repair.js';
 import { checkCommand } from './commands/check.js';
 import { gcloudCommand } from './commands/gcloud.js';
+import { authCommand } from './commands/auth.js';
+import { setupCommand } from './commands/setup.js';
 import { logger } from './core/logger.js';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+const pkg = require('../package.json');
 
 const program = new Command();
 
 program
     .name('cloudsqlctl')
     .description('CLI for managing Google Cloud SQL Auth Proxy')
-    .version('1.0.0');
+    .version(pkg.version);
 
 program.addCommand(installCommand);
 program.addCommand(updateCommand);
@@ -43,6 +49,8 @@ program.addCommand(ps1Command);
 program.addCommand(repairCommand);
 program.addCommand(checkCommand);
 program.addCommand(gcloudCommand);
+program.addCommand(authCommand);
+program.addCommand(setupCommand);
 
 program.parseAsync(process.argv).catch(err => {
     logger.error('Unhandled error', err);

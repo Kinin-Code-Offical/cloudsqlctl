@@ -1,5 +1,5 @@
 import { Command } from 'commander';
-import { installService, uninstallService, startService, stopService, isServiceInstalled, isServiceRunning } from '../system/service.js';
+import { installService, uninstallService, startService, stopService, isServiceInstalled, isServiceRunning, updateServiceBinPath } from '../system/service.js';
 import { logger } from '../core/logger.js';
 
 export const serviceCommand = new Command('service')
@@ -7,12 +7,28 @@ export const serviceCommand = new Command('service')
 
 serviceCommand.command('install')
     .description('Install the Windows Service')
-    .action(async () => {
+    .requiredOption('-i, --instance <connectionName>', 'Instance connection name')
+    .option('-p, --port <port>', 'Port number', '5432')
+    .action(async (options) => {
         try {
-            await installService();
+            await installService(options.instance, parseInt(options.port), []);
             logger.info('Service installed successfully.');
         } catch (error) {
             logger.error('Failed to install service', error);
+            process.exit(1);
+        }
+    });
+
+serviceCommand.command('configure')
+    .description('Update Service Configuration')
+    .requiredOption('-i, --instance <connectionName>', 'Instance connection name')
+    .option('-p, --port <port>', 'Port number', '5432')
+    .action(async (options) => {
+        try {
+            await updateServiceBinPath(options.instance, parseInt(options.port), []);
+            logger.info('Service configured successfully.');
+        } catch (error) {
+            logger.error('Failed to configure service', error);
             process.exit(1);
         }
     });

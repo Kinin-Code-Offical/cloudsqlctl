@@ -6,6 +6,7 @@ import { getLatestVersion, downloadProxy } from '../core/updater.js';
 import { generateScripts } from './ps1.js';
 import { logger } from '../core/logger.js';
 import { isAdmin } from './powershell.js';
+import { readConfig } from '../core/config.js';
 
 export async function selfHeal() {
     logger.info('Running self-healing checks...');
@@ -53,11 +54,16 @@ export async function selfHeal() {
     // 4. Check Service
     if (!await isServiceInstalled()) {
         if (admin) {
-            logger.warn('Service not installed. Installing...');
-            try {
-                await installService();
-            } catch (e) {
-                logger.error('Failed to install service', e);
+            const config = await readConfig();
+            if (config.selectedInstance) {
+                logger.warn('Service not installed. Installing...');
+                try {
+                    await installService(config.selectedInstance, config.proxyPort || 5432);
+                } catch (e) {
+                    logger.error('Failed to install service', e);
+                }
+            } else {
+                logger.info('Service not installed and no instance configured. Skipping service restoration.');
             }
         } else {
             logger.warn('Service not installed. Run as Administrator to fix.');

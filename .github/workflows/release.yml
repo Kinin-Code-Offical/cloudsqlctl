@@ -23,11 +23,24 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Check Version
+        run: |
+          $tag = $env:GITHUB_REF -replace 'refs/tags/v', ''
+          $pkg = Get-Content package.json | ConvertFrom-Json
+          if ($pkg.version -ne $tag) {
+            Write-Error "Version mismatch: Tag $tag vs Package $($pkg.version)"
+            exit 1
+          }
+
       - name: Build
         run: npm run build
 
       - name: Package
         run: npm run package
+
+      - name: Generate Checksums
+        run: |
+          Get-FileHash dist\*, installer\Output\* -Algorithm SHA256 | Select-Object Hash, Path | ForEach-Object { "$($_.Hash)  $(Split-Path $_.Path -Leaf)" } | Out-File SHA256SUMS.txt
 
       - name: Install Inno Setup
         run: choco install innosetup

@@ -34,6 +34,16 @@ export async function startProxy(connectionName: string, port: number = 5432): P
         `--port=${port}`
     ];
 
+    const env = { ...process.env };
+    // Allow override from config or env
+    // Note: process.env.GOOGLE_APPLICATION_CREDENTIALS is already in env
+
+    if (env.GOOGLE_APPLICATION_CREDENTIALS) {
+        logger.info('Using credentials from environment variable (masked)');
+    } else {
+        logger.info('No explicit credentials found in environment (relying on ADC)');
+    }
+
     logger.info(`Starting proxy with args: ${args.join(' ')}`);
 
     // Redirect output to a log file
@@ -43,7 +53,8 @@ export async function startProxy(connectionName: string, port: number = 5432): P
     const subprocess = spawn(PATHS.PROXY_EXE, args, {
         detached: true,
         stdio: ['ignore', outLog, errLog],
-        windowsHide: true
+        windowsHide: true,
+        env
     });
 
     subprocess.unref();

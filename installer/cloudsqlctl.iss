@@ -43,6 +43,7 @@ Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environmen
 Name: "{commonappdata}\CloudSQLCTL"; Permissions: users-modify
 Name: "{commonappdata}\CloudSQLCTL\logs"; Permissions: users-modify
 Name: "{commonappdata}\CloudSQLCTL\bin"; Permissions: users-modify
+Name: "{commonappdata}\CloudSQLCTL\secrets"; Permissions: admins-full system-full
 
 [Code]
 var

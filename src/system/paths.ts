@@ -15,6 +15,7 @@ export const USER_PATHS = {
     TEMP: path.join(LOCAL_APP_DATA, 'CloudSQLCTL', 'temp'),
     GCLOUD_DIR: path.join(LOCAL_APP_DATA, 'CloudSQLCTL', 'gcloud'),
     PID_FILE: path.join(LOCAL_APP_DATA, 'CloudSQLCTL', 'proxy.pid'),
+    SECRETS: path.join(LOCAL_APP_DATA, 'CloudSQLCTL', 'secrets'),
 };
 
 export const SYSTEM_PATHS = {
@@ -22,7 +23,8 @@ export const SYSTEM_PATHS = {
     LOGS: path.join(PROGRAM_DATA, 'CloudSQLCTL', 'logs'),
     BIN: path.join(PROGRAM_DATA, 'CloudSQLCTL', 'bin'),
     PROXY_EXE: path.join(PROGRAM_DATA, 'CloudSQLCTL', 'bin', 'cloud-sql-proxy.exe'),
-    SCRIPTS: path.join(PROGRAM_DATA, 'CloudSQLCTL', 'scripts')
+    SCRIPTS: path.join(PROGRAM_DATA, 'CloudSQLCTL', 'scripts'),
+    SECRETS: path.join(PROGRAM_DATA, 'CloudSQLCTL', 'secrets'),
 };
 
 export const ENV_VARS = {

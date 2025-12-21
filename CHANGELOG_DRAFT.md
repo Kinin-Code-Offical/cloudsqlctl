@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.3.0] - 2025-12-21
+
+### Added
+
+- **Setup Wizard**: New `setup` command for interactive initialization.
+- **Authentication**: New `auth` command suite (`login`, `adc`, `status`, `set-service-account`).
+- **Service Account Support**: Securely manage service account keys with ACL hardening.
+- **Windows Service**: Enhanced `service` command with `install` and `configure` options for instance/port.
+- **Installer**: Improved Inno Setup script with smart binary reuse and permission management.
+- **Diagnostics**: Expanded `doctor` command to check ADC, network connectivity, and service credentials.
+
+### Changed
+
+- **Proxy**: `startProxy` now respects `GOOGLE_APPLICATION_CREDENTIALS` from environment or config.
+- **Logging**: Credential paths are now masked in logs.
+- **CLI**: Version is now dynamically read from `package.json`.
+- **Release**: Added SHA256 checksum generation to release workflow.
+
 ## [0.2.0] - 2025-12-21
 
 ### Added

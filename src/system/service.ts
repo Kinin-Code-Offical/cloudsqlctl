@@ -20,7 +20,7 @@ export async function isServiceRunning(): Promise<boolean> {
     }
 }
 
-export async function installService() {
+export async function installService(instance: string, port: number = 5432, extraArgs: string[] = []) {
     if (!await isAdmin()) {
         throw new Error('Admin privileges required to install service.');
     }
@@ -31,16 +31,25 @@ export async function installService() {
     }
 
     logger.info(`Installing service ${SERVICE_NAME}...`);
-    // Note: We need to pass arguments to the proxy executable if needed, but for now we just point to the exe.
-    // The proxy usually needs arguments like instance connection name.
-    // If we run it as a service, we might need a wrapper or pass args in BinaryPathName.
-    // For this implementation, we'll assume the proxy reads config or we update the service binpath later.
-    // Actually, cloud_sql_proxy needs args. 
-    // Strategy: The service command should probably be "cloudsqlctl connect --service" or similar, 
-    // OR we register the proxy exe directly with arguments.
-    // Let's register the proxy exe directly for now, but we'll need to update the binpath with the instance name when connecting.
 
-    await runPs(`New-Service -Name "${SERVICE_NAME}" -BinaryPathName "${SYSTEM_PATHS.PROXY_EXE}" -StartupType Automatic`);
+    const binPath = `\\"${SYSTEM_PATHS.PROXY_EXE}\\" ${instance} --port=${port} ${extraArgs.join(' ')}`;
+
+    // Use sc.exe for better control over binPath with spaces/quotes
+    // New-Service can be tricky with complex quoting
+    await runPs(`New-Service -Name "${SERVICE_NAME}" -BinaryPathName '${binPath}' -StartupType Automatic`);
+}
+
+export async function updateServiceBinPath(instance: string, port: number = 5432, extraArgs: string[] = []) {
+    if (!await isAdmin()) {
+        throw new Error('Admin privileges required to update service configuration.');
+    }
+
+    const binPath = `\\"${SYSTEM_PATHS.PROXY_EXE}\\" ${instance} --port=${port} ${extraArgs.join(' ')}`;
+
+    // Use sc.exe to config binPath as Set-Service doesn't always support it easily for args
+    // sc.exe config "cloudsql-proxy" binPath= "..."
+    // Note: sc.exe requires a space after binPath=
+    await runPs(`sc.exe config "${SERVICE_NAME}" binPath= "${binPath}"`);
 }
 
 export async function uninstallService() {
@@ -73,16 +82,4 @@ export async function stopService() {
     }
     logger.info(`Stopping service ${SERVICE_NAME}...`);
     await runPs(`Stop-Service -Name "${SERVICE_NAME}" -Force`);
-}
-
-export async function updateServiceBinPath(args: string) {
-    if (!await isAdmin()) {
-        throw new Error('Admin privileges required to update service configuration.');
-    }
-    const binPath = `${SYSTEM_PATHS.PROXY_EXE} ${args}`;
-    // Use sc.exe to config binPath as Set-Service doesn't always support it easily for args
-    // Or use WMI/CIM
-    // sc.exe config "cloudsql-proxy" binPath= "..."
-    // Note: sc.exe requires space after binPath=
-    await runPs(`sc.exe config "${SERVICE_NAME}" binPath= "${binPath}"`);
 }

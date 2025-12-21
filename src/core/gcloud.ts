@@ -46,3 +46,44 @@ export async function getActiveAccount(): Promise<string | null> {
         return null;
     }
 }
+
+export async function getProject(): Promise<string | null> {
+    const cmd = await getGcloudCommand();
+    try {
+        const { stdout } = await execa(cmd, ['config', 'get-value', 'project']);
+        return stdout.trim();
+    } catch (_error) {
+        return null;
+    }
+}
+
+export async function setProject(projectId: string): Promise<void> {
+    const cmd = await getGcloudCommand();
+    await execa(cmd, ['config', 'set', 'project', projectId]);
+}
+
+export async function login(): Promise<void> {
+    const cmd = await getGcloudCommand();
+    await execa(cmd, ['auth', 'login'], { stdio: 'inherit' });
+}
+
+export async function adcLogin(): Promise<void> {
+    const cmd = await getGcloudCommand();
+    await execa(cmd, ['auth', 'application-default', 'login'], { stdio: 'inherit' });
+}
+
+export async function checkAdc(): Promise<boolean> {
+    // 1. Check GOOGLE_APPLICATION_CREDENTIALS
+    if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+        return true;
+    }
+
+    // 2. Check gcloud ADC
+    const cmd = await getGcloudCommand();
+    try {
+        await execa(cmd, ['auth', 'application-default', 'print-access-token']);
+        return true;
+    } catch {
+        return false;
+    }
+}
