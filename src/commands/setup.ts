@@ -2,6 +2,7 @@ import { Command } from 'commander';
 import inquirer from 'inquirer';
 import { logger } from '../core/logger.js';
 import { checkGcloudInstalled, getActiveAccount, checkAdc, login, adcLogin, listInstances } from '../core/gcloud.js';
+import { installPortableGcloud } from '../core/gcloud-installer.js';
 import { getLatestVersion, downloadProxy } from '../core/updater.js';
 import { PATHS } from '../system/paths.js';
 import fs from 'fs-extra';
@@ -23,8 +24,13 @@ export const setupCommand = new Command('setup')
             }]);
 
             if (installGcloud) {
-                logger.info('Please run "cloudsqlctl gcloud install" and restart setup.');
-                return;
+                try {
+                    await installPortableGcloud();
+                    logger.info('gcloud installed successfully. Continuing setup...');
+                } catch (error) {
+                    logger.error('Failed to install gcloud. Please install manually.', error);
+                    return;
+                }
             } else {
                 logger.error('gcloud CLI is required.');
                 return;

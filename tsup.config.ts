@@ -17,7 +17,7 @@ export default defineConfig({
         'process.env.CLOUDSQLCTL_VERSION': JSON.stringify(pkg.version),
     },
     noExternal: [/(.*)/], // Bundle everything
-    outExtension({ format }) {
+    outExtension() {
         return {
             js: '.cjs',
         };

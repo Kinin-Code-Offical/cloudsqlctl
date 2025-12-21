@@ -7,7 +7,6 @@ import { logger } from './logger.js';
 
 const GITHUB_REPO = 'GoogleCloudPlatform/cloud-sql-proxy';
 const ASSET_NAME = 'cloud-sql-proxy.x64.exe';
-const CHECKSUM_ASSET_NAME = 'cloud-sql-proxy.x64.exe.sha256';
 
 export async function getLatestVersion(): Promise<string> {
     try {

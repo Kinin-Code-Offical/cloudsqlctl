@@ -17,7 +17,7 @@
 
 - **Proxy**: `startProxy` now respects `GOOGLE_APPLICATION_CREDENTIALS` from environment or config.
 - **Logging**: Credential paths are now masked in logs.
-- **CLI**: Version is now dynamically read from `package.json`.
+- **CLI**: Version is now injected at build time for SEA compatibility.
 - **Release**: Added SHA256 checksum generation to release workflow.
 
 ## [0.2.0] - 2025-12-21

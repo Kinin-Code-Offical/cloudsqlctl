@@ -1,15 +1,8 @@
 import { Command } from 'commander';
 import { checkGcloudInstalled, getActiveAccount } from '../core/gcloud.js';
+import { installPortableGcloud } from '../core/gcloud-installer.js';
 import { logger } from '../core/logger.js';
-import { readConfig, writeConfig } from '../core/config.js';
-import { PATHS } from '../system/paths.js';
-import fs from 'fs-extra';
-import path from 'path';
-import axios from 'axios';
-import extract from 'extract-zip';
-
-// Official Google Cloud SDK download URL pattern
-const GCLOUD_DOWNLOAD_URL = 'https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-windows-x86_64.zip';
+import { readConfig } from '../core/config.js';
 
 export const gcloudCommand = new Command('gcloud')
     .description('Manage Google Cloud CLI');
@@ -34,46 +27,10 @@ gcloudCommand.command('install')
     .description('Install portable Google Cloud CLI')
     .action(async () => {
         try {
-            logger.info('Installing portable Google Cloud CLI...');
-            await fs.ensureDir(PATHS.GCLOUD_DIR);
-
-            const zipPath = path.join(PATHS.TEMP, 'google-cloud-sdk.zip');
-            await fs.ensureDir(PATHS.TEMP);
-
-            logger.info(`Downloading from ${GCLOUD_DOWNLOAD_URL}...`);
-            const response = await axios({
-                url: GCLOUD_DOWNLOAD_URL,
-                method: 'GET',
-                responseType: 'stream'
-            });
-
-            const writer = fs.createWriteStream(zipPath);
-            response.data.pipe(writer);
-
-            await new Promise<void>((resolve, reject) => {
-                writer.on('finish', () => resolve());
-                writer.on('error', reject);
-            });
-
-            logger.info('Extracting (this may take a moment)...');
-            // Use extract-zip for faster and reliable extraction
-            await extract(zipPath, { dir: PATHS.GCLOUD_DIR });
-
-            const gcloudExe = path.join(PATHS.GCLOUD_DIR, 'google-cloud-sdk', 'bin', 'gcloud.cmd');
-
-            if (await fs.pathExists(gcloudExe)) {
-                logger.info(`gcloud installed to ${gcloudExe}`);
-                await writeConfig({ gcloudPath: gcloudExe });
-                logger.info('Configuration updated.');
-            } else {
-                throw new Error('gcloud.cmd not found after extraction');
-            }
-
-            // Cleanup
-            await fs.remove(zipPath);
-
+            await installPortableGcloud();
         } catch (error) {
             logger.error('Failed to install gcloud', error);
             process.exit(1);
         }
     });
+

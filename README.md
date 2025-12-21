@@ -31,6 +31,8 @@ cloudsqlctl setup
 cloudsqlctl [command] [options]
 ```
 
+For a complete reference of all commands and options, see the [Command Reference](docs/commands.md).
+
 ### Commands
 
 | Command   | Description                                              |

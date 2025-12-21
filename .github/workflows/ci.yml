@@ -40,3 +40,9 @@ jobs:
 
       - name: Package
         run: npm run package
+
+      - name: Smoke Test EXE
+        run: npm run smoke:exe
+
+      - name: Check Docs
+        run: npm run docs:check

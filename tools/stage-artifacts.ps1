@@ -57,7 +57,9 @@ $FilesToZip = @(
     (Join-Path $ArtifactsDir "cloudsqlctl.exe"),
     (Join-Path $ArtifactsDir "cloudsqlctl-setup.exe"),
     (Join-Path $Root "README.md"),
-    (Join-Path $Root "LICENSE")
+    (Join-Path $Root "LICENSE"),
+    (Join-Path $Root "docs/commands.md"),
+    (Join-Path $Root "CHANGELOG.md")
 )
 
 # Filter existing files only
