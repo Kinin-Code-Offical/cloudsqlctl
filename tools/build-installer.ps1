@@ -1,3 +1,11 @@
+$ErrorActionPreference = "Stop"
+
+# Read version from package.json
+$PackageJson = Get-Content -Path (Join-Path $PSScriptRoot "..\package.json") -Raw | ConvertFrom-Json
+$Version = $PackageJson.version
+
+Write-Host "Building Installer for Version: $Version"
+
 $ISCC = Get-Command "iscc" -ErrorAction SilentlyContinue
 
 if (-not $ISCC) {
@@ -16,7 +24,8 @@ $ScriptPath = [System.IO.Path]::GetFullPath($ScriptPath)
 
 Write-Host "Building installer from $ScriptPath..."
 
-& $ISCC $ScriptPath
+# Pass the version to ISCC
+& $ISCC "/DMyAppVersion=$Version" $ScriptPath
 
 if ($LASTEXITCODE -eq 0) {
     Write-Host "Installer built successfully."

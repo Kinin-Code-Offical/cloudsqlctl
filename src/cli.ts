@@ -19,6 +19,7 @@ import { checkCommand } from './commands/check.js';
 import { gcloudCommand } from './commands/gcloud.js';
 import { authCommand } from './commands/auth.js';
 import { setupCommand } from './commands/setup.js';
+import { pathsCommand } from './commands/paths.js';
 import { logger } from './core/logger.js';
 import { createRequire } from 'module';
 
@@ -51,6 +52,7 @@ program.addCommand(checkCommand);
 program.addCommand(gcloudCommand);
 program.addCommand(authCommand);
 program.addCommand(setupCommand);
+program.addCommand(pathsCommand);
 
 program.parseAsync(process.argv).catch(err => {
     logger.error('Unhandled error', err);

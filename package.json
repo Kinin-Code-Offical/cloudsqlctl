@@ -14,7 +14,7 @@
     "build": "tsup src/cli.ts --format cjs --minify --out-dir dist --no-splitting",
     "package": "npm run build && powershell -ExecutionPolicy Bypass -File tools/build-sea.ps1",
     "installer": "powershell -ExecutionPolicy Bypass -File tools/build-installer.ps1",
-    "zip": "powershell -Command \"Get-ChildItem -Path . -Force | Where-Object { $_.Name -notin 'node_modules', 'dist', 'bin', 'coverage', '.git', '.vs', '.DS_Store' -and $_.Extension -notin '.zip', '.exe', '.log' } | Compress-Archive -DestinationPath cloudsqlctl.zip -Force\"",
+    "stage": "powershell -ExecutionPolicy Bypass -File tools/stage-artifacts.ps1",
     "lint": "eslint src",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --passWithNoTests",
     "prepare": "husky install"

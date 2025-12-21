@@ -1,5 +1,7 @@
 #define MyAppName "CloudSQLCTL"
-#define MyAppVersion "0.2.0"
+#ifndef MyAppVersion
+#define MyAppVersion "0.0.0"
+#endif
 #define MyAppPublisher "Kinin Code"
 #define MyAppURL "https://github.com/Kinin-Code-Offical/cloudsqlctl"
 #define MyAppExeName "cloudsqlctl.exe"

@@ -12,10 +12,10 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v4
 
       - name: Use Node.js 22.x
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: 22.x
           cache: 'npm'
@@ -35,24 +35,28 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Package
+      - name: Package (SEA)
         run: npm run package
 
-      - name: Generate Checksums
-        run: |
-          Get-FileHash dist\*, installer\Output\* -Algorithm SHA256 | Select-Object Hash, Path | ForEach-Object { "$($_.Hash)  $(Split-Path $_.Path -Leaf)" } | Out-File SHA256SUMS.txt
-
       - name: Install Inno Setup
-        run: choco install innosetup
+        run: choco install innosetup -y --no-progress
 
       - name: Build Installer
         run: npm run installer
+
+      - name: Stage Artifacts
+        run: npm run stage
+
+      - name: Verify Artifacts
+        run: |
+          if (-not (Test-Path artifacts/cloudsqlctl.exe)) { throw "Missing cloudsqlctl.exe" }
+          if (-not (Test-Path artifacts/cloudsqlctl-setup.exe)) { throw "Missing cloudsqlctl-setup.exe" }
+          if (-not (Test-Path artifacts/cloudsqlctl-windows-x64.zip)) { throw "Missing zip bundle" }
+          if (-not (Test-Path artifacts/SHA256SUMS.txt)) { throw "Missing SHA256SUMS.txt" }
 
       - name: Release
         uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: |
-            bin/cloudsqlctl.exe
-            dist/cloudsqlctl-setup.exe
+          files: artifacts/*
           generate_release_notes: true

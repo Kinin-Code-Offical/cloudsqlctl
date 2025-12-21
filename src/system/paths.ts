@@ -50,6 +50,7 @@ function resolvePaths() {
             TEMP: path.join(home, 'temp'),
             GCLOUD_DIR: path.join(home, 'gcloud'),
             PID_FILE: path.join(home, 'proxy.pid'),
+            SECRETS: path.join(home, 'secrets'),
         };
     }
 
