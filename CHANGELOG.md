@@ -2,6 +2,12 @@
 
 # Changelog
 
+## [0.4.9] - 2025-12-21
+
+### Changed
+
+- new release with minimal changes
+
 ## [0.4.8] - 2025-12-21
 
 ### Changed
