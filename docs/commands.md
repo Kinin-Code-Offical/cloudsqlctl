@@ -1,6 +1,6 @@
 # Cloud SQL Proxy CLI Reference
 
-**Version:** 0.4.9
+**Version:** 0.4.10
 **Generated:** 2025-12-21
 
 ## Overview

@@ -2,6 +2,13 @@
 
 # Changelog
 
+## [0.4.10] - 2025-12-21
+
+### Changed
+
+- new release with minimal changes
+- remove temporary test file
+
 ## [0.4.9] - 2025-12-21
 
 ### Changed
