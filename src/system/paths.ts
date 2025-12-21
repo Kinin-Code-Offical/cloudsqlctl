@@ -21,12 +21,9 @@ export const SYSTEM_PATHS = {
     HOME: path.join(PROGRAM_DATA, 'CloudSQLCTL'),
     LOGS: path.join(PROGRAM_DATA, 'CloudSQLCTL', 'logs'),
     BIN: path.join(PROGRAM_DATA, 'CloudSQLCTL', 'bin'),
-    PROXY_EXE: path.join(PROGRAM_DATA, 'CloudSQLCTL', 'cloud-sql-proxy.exe'),
+    PROXY_EXE: path.join(PROGRAM_DATA, 'CloudSQLCTL', 'bin', 'cloud-sql-proxy.exe'),
     SCRIPTS: path.join(PROGRAM_DATA, 'CloudSQLCTL', 'scripts')
 };
-
-// Default to USER_PATHS for most operations
-export const PATHS = USER_PATHS;
 
 export const ENV_VARS = {
     HOME: 'CLOUDSQLCTL_HOME',
@@ -34,5 +31,27 @@ export const ENV_VARS = {
     PROXY_PATH: 'CLOUDSQLCTL_PROXY_PATH',
     GOOGLE_CREDS: 'GOOGLE_APPLICATION_CREDENTIALS'
 };
+
+function resolvePaths() {
+    const home = process.env[ENV_VARS.HOME] || USER_PATHS.HOME;
+    const logs = process.env[ENV_VARS.LOGS] || path.join(home, 'logs');
+    const bin = path.join(home, 'bin');
+    const proxyExe = process.env[ENV_VARS.PROXY_PATH] || path.join(bin, 'cloud-sql-proxy.exe');
+
+    return {
+        HOME: home,
+        LOGS: logs,
+        BIN: bin,
+        PROXY_EXE: proxyExe,
+        CONFIG_DIR: home,
+        CONFIG_FILE: path.join(home, 'config.json'),
+        TEMP: path.join(home, 'temp'),
+        GCLOUD_DIR: path.join(home, 'gcloud'),
+        PID_FILE: path.join(home, 'proxy.pid'),
+    };
+}
+
+// Default to resolved paths (User scope by default, or ENV overrides)
+export const PATHS = resolvePaths();
 
 export const SERVICE_NAME = 'cloudsql-proxy';

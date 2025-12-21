@@ -1,7 +1,7 @@
 import { Command } from 'commander';
 import { checkEnvironment } from '../system/env.js';
 import { isServiceInstalled, isServiceRunning } from '../system/service.js';
-import { SYSTEM_PATHS } from '../system/paths.js';
+import { PATHS } from '../system/paths.js';
 import fs from 'fs-extra';
 import { logger } from '../core/logger.js';
 
@@ -14,7 +14,7 @@ export const checkCommand = new Command('check')
             const envOk = await checkEnvironment();
             logger.info(`Environment Variables: ${envOk ? 'OK' : 'MISSING/INCORRECT'}`);
 
-            const binaryOk = await fs.pathExists(SYSTEM_PATHS.PROXY_EXE);
+            const binaryOk = await fs.pathExists(PATHS.PROXY_EXE);
             logger.info(`Proxy Binary: ${binaryOk ? 'OK' : 'MISSING'}`);
 
             const serviceInstalled = await isServiceInstalled();
