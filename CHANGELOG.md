@@ -2,6 +2,14 @@
 
 # Changelog
 
+## [0.4.6] - 2025-12-21
+
+### Changed
+
+- new release with minimal changes
+- rename setup scripts for consistency in package.json
+- enhance documentation generation and update changelog entry creation
+
 ## [0.4.5] - 2025-12-21
 
 ### Added
@@ -72,3 +80,4 @@
 - **Build**: Resolved duplicate exports in service module.
 - **Types**: Fixed TypeScript errors in self-heal and service commands.
 - **Linting**: Corrected Markdown formatting issues.
+
