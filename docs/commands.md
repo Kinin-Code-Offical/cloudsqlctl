@@ -318,10 +318,11 @@ Options:
   --asset <mode>  Asset type to download (auto, installer, exe) (default:
                   "auto")
   --dir <path>    Download directory (default:
-                  "C:\\Users\\ymc\\AppData\\Local\\CloudSQLCTL\\downloads\\updates")
+                  "<USER_HOME>\\AppData\\Local\\CloudSQLCTL\\downloads\\updates")
   --force         Force update even if version is same or older
   --no-silent     Run installer in interactive mode (installer only)
   --no-elevate    Do not attempt to elevate privileges (installer only)
   --json          Output status in JSON format
   -h, --help      display help for command
 ```
+

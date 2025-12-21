@@ -1,6 +1,7 @@
 import { execa } from 'execa';
 import fs from 'fs-extra';
 import path from 'path';
+import os from 'os';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -9,9 +10,23 @@ const CLI_PATH = path.join(ROOT_DIR, 'dist', 'cli.cjs');
 const DOCS_DIR = path.join(ROOT_DIR, 'docs');
 const DOCS_FILE = path.join(DOCS_DIR, 'commands.md');
 
+const HOME_DIR = os.homedir();
+
 async function runCli(args) {
   const { stdout } = await execa('node', [CLI_PATH, ...args]);
-  return stdout;
+
+  // Sanitize output: replace user-specific paths with placeholders
+  // This prevents CI failures due to different user names (e.g., ymc vs runneradmin)
+  let sanitized = stdout;
+
+  const homeDir = os.homedir();
+  const escapedHome = homeDir.replace(/\\/g, '\\\\');
+
+  // Replace various forms of the home directory path
+  sanitized = sanitized.split(homeDir).join('<USER_HOME>');
+  sanitized = sanitized.split(escapedHome).join('<USER_HOME>');
+
+  return sanitized;
 }
 
 async function generateDocs() {
