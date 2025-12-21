@@ -171,8 +171,9 @@ if (Test-Path "CHANGELOG.md") {
     Write-Step "Prepending CHANGELOG.md entry"
     $date = Get-Date -Format "yyyy-MM-dd"
     $existing = Get-Content "CHANGELOG.md" -Raw
+    $existing = $existing -replace '(?ms)^<!-- markdownlint-disable MD024 -->\s*', ''
     $existing = $existing -replace '(?ms)^# Changelog\s*', ''
-    $entry = "# Changelog`n`n## [$Version] - $date`n`n### Added`n- Release $Version`n`n"
+    $entry = "<!-- markdownlint-disable MD024 -->`n`n# Changelog`n`n## [$Version] - $date`n`n### Added`n- Release $Version`n`n"
     $escapedVer = [regex]::Escape($Version)
     if ($existing -notmatch "## \[$escapedVer\]") {
         Set-Content "CHANGELOG.md" ($entry + $existing) -Encoding UTF8

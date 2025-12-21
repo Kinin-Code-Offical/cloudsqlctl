@@ -31,7 +31,7 @@ async function generateDocs() {
   content += `**Version:** ${version}\n`;
   content += `**Generated:** ${date}\n\n`;
   content += `## Overview\n\n`;
-  content += '```\n' + (await runCli(['--help'])) + '\n```\n\n';
+  content += '```text\n' + (await runCli(['--help'])) + '\n```\n\n';
 
   const commands = [
     'install',
