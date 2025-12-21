@@ -23,20 +23,23 @@ cloudsqlctl [command] [options]
 
 ### Commands
 
-| Command   | Description                                              |
-| :-------- | :------------------------------------------------------- |
-| `install` | Download and install the Cloud SQL Proxy binary.         |
-| `update`  | Update the Cloud SQL Proxy binary to the latest version. |
-| `list`    | List available Cloud SQL instances.                      |
-| `select`  | Interactively select a Cloud SQL instance to proxy.      |
-| `connect` | Connect to a specific instance directly.                 |
-| `start`   | Start the proxy for the selected instance.               |
-| `stop`    | Stop the running proxy process.                          |
-| `restart` | Restart the proxy process.                               |
-| `status`  | Check if the proxy is running and view details.          |
-| `logs`    | View the tail of the proxy logs.                         |
-| `doctor`  | Run diagnostics to verify environment setup.             |
-| `reset`   | Reset configuration and remove local files.              |
+| Command   | Description                                                   |
+| :-------- | :------------------------------------------------------------ |
+| `install` | Download and install the Cloud SQL Proxy binary (User scope). |
+| `update`  | Update the Cloud SQL Proxy binary to the latest version.      |
+| `list`    | List available Cloud SQL instances.                           |
+| `select`  | Interactively select a Cloud SQL instance to proxy.           |
+| `connect` | Connect to a specific instance directly.                      |
+| `start`   | Start the proxy for the selected instance.                    |
+| `stop`    | Stop the running proxy process.                               |
+| `service` | Manage Windows Service (Admin required).                      |
+| `env`     | Manage environment variables (User/Machine scope).            |
+| `gcloud`  | Manage Google Cloud CLI (install portable version).           |
+| `restart` | Restart the proxy process.                                    |
+| `status`  | Check if the proxy is running and view details.               |
+| `logs`    | View the tail of the proxy logs.                              |
+| `doctor`  | Run diagnostics to verify environment setup.                  |
+| `reset`   | Reset configuration and remove local files.                   |
 
 ### Example
 

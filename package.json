@@ -2,14 +2,14 @@
   "name": "cloudsqlctl",
   "version": "0.2.0",
   "description": "Windows-native CLI tool that installs, updates, and manages Google Cloud SQL Auth Proxy via gcloud CLI.",
-  "main": "dist/cli.js",
+  "main": "dist/cli.cjs",
   "type": "module",
   "bin": {
-    "cloudsqlctl": "./dist/cli.js"
+    "cloudsqlctl": "./dist/cli.cjs"
   },
   "scripts": {
     "build": "tsup src/cli.ts --format cjs --minify --out-dir dist --no-splitting",
-    "package": "pkg dist/cli.js --targets node20-win-x64 --output bin/cloudsqlctl.exe",
+    "package": "npm run build && powershell -ExecutionPolicy Bypass -File tools/build-sea.ps1",
     "zip": "powershell -Command \"Get-ChildItem -Path . -Force | Where-Object { $_.Name -notin 'node_modules', 'dist', 'bin', 'coverage', '.git', '.vs', '.DS_Store' -and $_.Extension -notin '.zip', '.exe', '.log' } | Compress-Archive -DestinationPath cloudsqlctl.zip -Force\"",
     "lint": "eslint src",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --passWithNoTests",

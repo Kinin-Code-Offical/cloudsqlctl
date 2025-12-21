@@ -1,5 +1,5 @@
 import { jest } from '@jest/globals';
-import { SYSTEM_PATHS, SERVICE_NAME } from '../src/system/paths.js';
+import { USER_PATHS, SERVICE_NAME } from '../src/system/paths.js';
 
 jest.unstable_mockModule('execa', () => ({
     execa: jest.fn()
@@ -16,9 +16,9 @@ describe('System Module', () => {
 
     describe('Environment', () => {
         it('should check environment variables', async () => {
-            (execa as unknown as jest.Mock<(...args: unknown[]) => Promise<unknown>>).mockResolvedValueOnce({ stdout: SYSTEM_PATHS.HOME });
-            (execa as unknown as jest.Mock<(...args: unknown[]) => Promise<unknown>>).mockResolvedValueOnce({ stdout: SYSTEM_PATHS.LOGS });
-            (execa as unknown as jest.Mock<(...args: unknown[]) => Promise<unknown>>).mockResolvedValueOnce({ stdout: SYSTEM_PATHS.PROXY_EXE });
+            (execa as unknown as jest.Mock<(...args: unknown[]) => Promise<unknown>>).mockResolvedValueOnce({ stdout: USER_PATHS.HOME });
+            (execa as unknown as jest.Mock<(...args: unknown[]) => Promise<unknown>>).mockResolvedValueOnce({ stdout: USER_PATHS.LOGS });
+            (execa as unknown as jest.Mock<(...args: unknown[]) => Promise<unknown>>).mockResolvedValueOnce({ stdout: USER_PATHS.PROXY_EXE });
 
             const result = await checkEnvironment();
             expect(result).toBe(true);
@@ -27,8 +27,8 @@ describe('System Module', () => {
 
         it('should return false if env vars mismatch', async () => {
             (execa as unknown as jest.Mock<(...args: unknown[]) => Promise<unknown>>).mockResolvedValueOnce({ stdout: 'WRONG_PATH' });
-            (execa as unknown as jest.Mock<(...args: unknown[]) => Promise<unknown>>).mockResolvedValueOnce({ stdout: SYSTEM_PATHS.LOGS });
-            (execa as unknown as jest.Mock<(...args: unknown[]) => Promise<unknown>>).mockResolvedValueOnce({ stdout: SYSTEM_PATHS.PROXY_EXE });
+            (execa as unknown as jest.Mock<(...args: unknown[]) => Promise<unknown>>).mockResolvedValueOnce({ stdout: USER_PATHS.LOGS });
+            (execa as unknown as jest.Mock<(...args: unknown[]) => Promise<unknown>>).mockResolvedValueOnce({ stdout: USER_PATHS.PROXY_EXE });
 
             const result = await checkEnvironment();
             expect(result).toBe(false);

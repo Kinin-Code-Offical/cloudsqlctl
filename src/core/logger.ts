@@ -8,7 +8,7 @@ import { PATHS } from './config.js';
 // We'll rely on the app initialization to call ensureDirs(), but for safety, we can use fs-extra sync.
 import fs from 'fs-extra';
 try {
-    fs.ensureDirSync(PATHS.LOG_DIR);
+    fs.ensureDirSync(PATHS.LOGS);
 } catch (_e) {
     // Ignore if it fails, might be permission issue or already exists
 }
@@ -29,8 +29,8 @@ export const logger = winston.createLogger({
         winston.format.json()
     ),
     transports: [
-        new winston.transports.File({ filename: path.join(PATHS.LOG_DIR, 'error.log'), level: 'error' }),
-        new winston.transports.File({ filename: path.join(PATHS.LOG_DIR, 'combined.log') }),
+        new winston.transports.File({ filename: path.join(PATHS.LOGS, 'error.log'), level: 'error' }),
+        new winston.transports.File({ filename: path.join(PATHS.LOGS, 'combined.log') }),
         new winston.transports.Console({
             format: winston.format.combine(
                 winston.format.colorize(),

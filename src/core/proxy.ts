@@ -37,8 +37,8 @@ export async function startProxy(connectionName: string, port: number = 5432): P
     logger.info(`Starting proxy with args: ${args.join(' ')}`);
 
     // Redirect output to a log file
-    const outLog = fs.openSync(path.join(PATHS.LOG_DIR, 'proxy.out.log'), 'a');
-    const errLog = fs.openSync(path.join(PATHS.LOG_DIR, 'proxy.err.log'), 'a');
+    const outLog = fs.openSync(path.join(PATHS.LOGS, 'proxy.out.log'), 'a');
+    const errLog = fs.openSync(path.join(PATHS.LOGS, 'proxy.err.log'), 'a');
 
     const subprocess = spawn(PATHS.PROXY_EXE, args, {
         detached: true,

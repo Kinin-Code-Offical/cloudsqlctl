@@ -2,12 +2,9 @@ import { Command } from 'commander';
 import { getLatestVersion, downloadProxy } from '../core/updater.js';
 import { logger } from '../core/logger.js';
 import { isRunning, stopProxy } from '../core/proxy.js';
-import { setupEnvironment } from '../system/env.js';
-import { generateScripts } from '../system/ps1.js';
-import { installService } from '../system/service.js';
 
 export const installCommand = new Command('install')
-    .description('Download and install Cloud SQL Proxy, setup environment and service')
+    .description('Download and install Cloud SQL Proxy')
     .option('-v, --version <version>', 'Specific version to install')
     .action(async (options) => {
         try {
@@ -24,16 +21,7 @@ export const installCommand = new Command('install')
             logger.info(`Installing Cloud SQL Proxy version ${version}...`);
             await downloadProxy(version);
 
-            logger.info('Setting up environment variables...');
-            await setupEnvironment();
-
-            logger.info('Generating PowerShell scripts...');
-            await generateScripts();
-
-            logger.info('Installing Windows Service...');
-            await installService();
-
-            logger.info('Installation and setup successful.');
+            logger.info('Installation successful.');
         } catch (error) {
             logger.error('Installation failed', error);
             process.exit(1);

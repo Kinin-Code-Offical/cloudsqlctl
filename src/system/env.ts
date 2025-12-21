@@ -1,32 +1,31 @@
 import { runPs, isAdmin } from './powershell.js';
-import { SYSTEM_PATHS, ENV_VARS } from './paths.js';
+import { SYSTEM_PATHS, USER_PATHS, ENV_VARS } from './paths.js';
 import { logger } from '../core/logger.js';
 
-export async function setSystemEnv(name: string, value: string) {
-    if (!await isAdmin()) {
+export async function setEnv(name: string, value: string, scope: 'Machine' | 'User') {
+    if (scope === 'Machine' && !await isAdmin()) {
         throw new Error('Admin privileges required to set system environment variables.');
     }
-    logger.info(`Setting system environment variable: ${name}=${value}`);
-    await runPs(`[Environment]::SetEnvironmentVariable("${name}", "${value}", "Machine")`);
+    logger.info(`Setting ${scope} environment variable: ${name}=${value}`);
+    await runPs(`[Environment]::SetEnvironmentVariable("${name}", "${value}", "${scope}")`);
 }
 
-export async function setupEnvironment() {
-    logger.info('Configuring system environment variables...');
+export async function setupEnvironment(scope: 'Machine' | 'User' = 'User') {
+    logger.info(`Configuring ${scope} environment variables...`);
+    const paths = scope === 'Machine' ? SYSTEM_PATHS : USER_PATHS;
 
-    await setSystemEnv(ENV_VARS.HOME, SYSTEM_PATHS.HOME);
-    await setSystemEnv(ENV_VARS.LOGS, SYSTEM_PATHS.LOGS);
-    await setSystemEnv(ENV_VARS.PROXY_PATH, SYSTEM_PATHS.PROXY_EXE);
-
-    // We don't overwrite GOOGLE_APPLICATION_CREDENTIALS if it exists, but we could ensure it points to a standard location if needed.
-    // For now, we'll leave it as user-managed or set it if missing and we have a default.
+    await setEnv(ENV_VARS.HOME, paths.HOME, scope);
+    await setEnv(ENV_VARS.LOGS, paths.LOGS, scope);
+    await setEnv(ENV_VARS.PROXY_PATH, paths.PROXY_EXE, scope);
 }
 
-export async function checkEnvironment(): Promise<boolean> {
-    const home = await runPs(`[Environment]::GetEnvironmentVariable("${ENV_VARS.HOME}", "Machine")`);
-    const logs = await runPs(`[Environment]::GetEnvironmentVariable("${ENV_VARS.LOGS}", "Machine")`);
-    const proxy = await runPs(`[Environment]::GetEnvironmentVariable("${ENV_VARS.PROXY_PATH}", "Machine")`);
+export async function checkEnvironment(scope: 'Machine' | 'User' = 'User'): Promise<boolean> {
+    const paths = scope === 'Machine' ? SYSTEM_PATHS : USER_PATHS;
+    const home = await runPs(`[Environment]::GetEnvironmentVariable("${ENV_VARS.HOME}", "${scope}")`);
+    const logs = await runPs(`[Environment]::GetEnvironmentVariable("${ENV_VARS.LOGS}", "${scope}")`);
+    const proxy = await runPs(`[Environment]::GetEnvironmentVariable("${ENV_VARS.PROXY_PATH}", "${scope}")`);
 
-    return home === SYSTEM_PATHS.HOME &&
-        logs === SYSTEM_PATHS.LOGS &&
-        proxy === SYSTEM_PATHS.PROXY_EXE;
+    return home === paths.HOME &&
+        logs === paths.LOGS &&
+        proxy === paths.PROXY_EXE;
 }

@@ -9,7 +9,7 @@ export const logsCommand = new Command('logs')
     .option('-n, --lines <lines>', 'Number of lines to show', parseInt, 20)
     .action(async (options) => {
         try {
-            const logFile = path.join(PATHS.LOG_DIR, 'combined.log');
+            const logFile = path.join(PATHS.LOGS, 'combined.log');
             const lines = await getTail(logFile, options.lines);
             lines.forEach(line => console.log(line));
         } catch (error) {

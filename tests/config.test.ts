@@ -3,7 +3,7 @@ import fs from 'fs-extra';
 
 describe('Config Module', () => {
     beforeAll(async () => {
-        await fs.ensureDir(PATHS.APP_DIR);
+        await fs.ensureDir(PATHS.HOME);
     });
 
     it('should read empty config if file does not exist', async () => {

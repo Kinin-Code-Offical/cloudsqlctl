@@ -1,31 +1,20 @@
-import path from 'path';
 import fs from 'fs-extra';
-import os from 'os';
+import { PATHS } from '../system/paths.js';
 
-const APP_NAME = 'CloudSQLCTL';
-const LOCAL_APP_DATA = process.env.LOCALAPPDATA || path.join(os.homedir(), 'AppData', 'Local');
-const APP_DIR = path.join(LOCAL_APP_DATA, APP_NAME);
-
-export const PATHS = {
-    APP_DIR,
-    CONFIG_FILE: path.join(APP_DIR, 'config.json'),
-    LOG_DIR: path.join(APP_DIR, 'logs'),
-    BIN_DIR: path.join(APP_DIR, 'bin'),
-    PROXY_EXE: path.join(APP_DIR, 'bin', 'cloud_sql_proxy.exe'),
-    PID_FILE: path.join(APP_DIR, 'proxy.pid'),
-};
+export { PATHS };
 
 export interface AppConfig {
     selectedInstance?: string;
     proxyPort?: number;
     autoUpdate?: boolean;
     lastUpdateCheck?: string;
+    gcloudPath?: string;
 }
 
 export async function ensureDirs() {
-    await fs.ensureDir(PATHS.APP_DIR);
-    await fs.ensureDir(PATHS.LOG_DIR);
-    await fs.ensureDir(PATHS.BIN_DIR);
+    await fs.ensureDir(PATHS.HOME);
+    await fs.ensureDir(PATHS.LOGS);
+    await fs.ensureDir(PATHS.BIN);
 }
 
 export async function readConfig(): Promise<AppConfig> {

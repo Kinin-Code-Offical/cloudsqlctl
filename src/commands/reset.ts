@@ -10,7 +10,7 @@ export const resetCommand = new Command('reset')
             logger.warn('This will remove all configuration and logs.');
             // In a real app, ask for confirmation
             await fs.remove(PATHS.CONFIG_FILE);
-            await fs.remove(PATHS.LOG_DIR);
+            await fs.remove(PATHS.LOGS);
             // Maybe keep the binary?
             logger.info('Reset complete.');
         } catch (error) {

@@ -1,7 +1,7 @@
 import axios from 'axios';
 import fs from 'fs-extra';
 import crypto from 'crypto';
-import { SYSTEM_PATHS } from '../system/paths.js';
+import { PATHS } from '../system/paths.js';
 import { logger } from './logger.js';
 
 const GITHUB_REPO = 'GoogleCloudPlatform/cloud-sql-proxy';
@@ -63,8 +63,8 @@ export async function downloadProxy(version: string) {
 
     logger.info(`Downloading Cloud SQL Proxy ${version} from ${downloadUrl}`);
 
-    await fs.ensureDir(SYSTEM_PATHS.BIN);
-    const tempFile = `${SYSTEM_PATHS.PROXY_EXE}.temp`;
+    await fs.ensureDir(PATHS.BIN);
+    const tempFile = `${PATHS.PROXY_EXE}.temp`;
     const writer = fs.createWriteStream(tempFile);
 
     const response = await axios({
@@ -108,6 +108,6 @@ export async function downloadProxy(version: string) {
         }
     }
 
-    await fs.move(tempFile, SYSTEM_PATHS.PROXY_EXE, { overwrite: true });
+    await fs.move(tempFile, PATHS.PROXY_EXE, { overwrite: true });
     logger.info('Installation successful');
 }
