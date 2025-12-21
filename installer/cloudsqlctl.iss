@@ -46,9 +46,9 @@ Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environmen
 Root: HKLM; Subkey: "SYSTEM\CurrentControlSet\Control\Session Manager\Environment"; ValueType: string; ValueName: "CLOUDSQLCTL_PROXY_PATH"; ValueData: "{code:GetProxyPath}"; Flags: uninsdeletevalue
 
 [Dirs]
-Name: "{commonappdata}\CloudSQLCTL"; Permissions: users-modify
-Name: "{commonappdata}\CloudSQLCTL\logs"; Permissions: users-modify
-Name: "{commonappdata}\CloudSQLCTL\bin"; Permissions: users-modify
+Name: "{commonappdata}\CloudSQLCTL"; Permissions: admins-full system-full users-readexec
+Name: "{commonappdata}\CloudSQLCTL\logs"; Permissions: admins-full system-full users-modify
+Name: "{commonappdata}\CloudSQLCTL\bin"; Permissions: admins-full system-full users-readexec
 Name: "{commonappdata}\CloudSQLCTL\secrets"; Permissions: admins-full system-full
 
 [Code]
