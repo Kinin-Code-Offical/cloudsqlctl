@@ -1,6 +1,6 @@
 # Cloud SQL Proxy CLI Reference
 
-**Version:** 0.3.5
+**Version:** 0.3.56
 **Generated:** 2025-12-21
 
 ## Overview
@@ -303,3 +303,4 @@ Show resolved system paths and configuration locations
 Options:
   -h, --help  display help for command
 ```
+
