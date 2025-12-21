@@ -1,6 +1,6 @@
 {
   "name": "cloudsqlctl",
-  "version": "0.3.56",
+  "version": "0.4.1",
   "description": "Windows-native CLI tool that installs, updates, and manages Google Cloud SQL Auth Proxy via gcloud CLI.",
   "main": "dist/cli.cjs",
   "type": "module",

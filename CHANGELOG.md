@@ -1,4 +1,9 @@
-﻿## [0.3.56] - 2025-12-21
+﻿## [0.4.1] - 2025-12-21
+
+### Added
+- Release 0.4.1
+
+## [0.3.56] - 2025-12-21
 
 ### Added
 - Release 0.3.56
@@ -45,4 +50,5 @@
 - **Build**: Resolved duplicate exports in service module.
 - **Types**: Fixed TypeScript errors in self-heal and service commands.
 - **Linting**: Corrected Markdown formatting issues.
+
 
