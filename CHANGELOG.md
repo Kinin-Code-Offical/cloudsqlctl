@@ -2,6 +2,14 @@
 
 # Changelog
 
+## [0.4.13] - 2025-12-21
+
+### Changed
+
+- new release with minimal changes
+- Potential fix for code scanning alert no. 3: Uncontrolled command line (#8)
+- new release with minimal changes
+
 ## [0.4.12] - 2025-12-21
 
 ### Changed
