@@ -14,6 +14,7 @@ const GITHUB_RELEASES_URL = `https://api.github.com/repos/${REPO_OWNER}/${REPO_N
 const GITHUB_RELEASE_TAG_URL = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/tags`;
 const TIMEOUT_MS = 60000;
 const MAX_RETRIES = 2;
+const RETRYABLE_STATUS = new Set([429, 500, 502, 503, 504]);
 
 export interface ReleaseInfo {
     tag_name: string;
@@ -31,12 +32,62 @@ export interface UpdateStatus {
     releaseInfo?: ReleaseInfo;
 }
 
+function getGithubHeaders(): Record<string, string> {
+    const headers: Record<string, string> = { 'User-Agent': 'cloudsqlctl/upgrade' };
+    const token = process.env.CLOUDSQLCTL_GITHUB_TOKEN || process.env.GITHUB_TOKEN;
+    if (token) {
+        headers.Authorization = `Bearer ${token}`;
+    }
+    return headers;
+}
+
+function getRateLimitMessage(error: unknown): string | null {
+    if (axios.isAxiosError(error) && error.response) {
+        const remaining = error.response.headers['x-ratelimit-remaining'];
+        const reset = error.response.headers['x-ratelimit-reset'];
+        if (remaining === '0' && reset) {
+            const resetTime = new Date(Number(reset) * 1000).toISOString();
+            return `GitHub API rate limit exceeded. Resets at ${resetTime}.`;
+        }
+    }
+    return null;
+}
+
+function shouldRetry(error: unknown): boolean {
+    if (axios.isAxiosError(error)) {
+        if (!error.response) return true;
+        return RETRYABLE_STATUS.has(error.response.status);
+    }
+    return false;
+}
+
+async function githubGet<T>(url: string) {
+    let attempt = 0;
+    while (attempt <= MAX_RETRIES) {
+        try {
+            return await axios.get<T>(url, {
+                timeout: TIMEOUT_MS,
+                headers: getGithubHeaders()
+            });
+        } catch (error) {
+            attempt++;
+            const rateLimit = getRateLimitMessage(error);
+            if (rateLimit) {
+                logger.warn(rateLimit);
+            }
+            if (attempt > MAX_RETRIES || !shouldRetry(error)) {
+                throw error;
+            }
+            const delayMs = 1000 * attempt;
+            await new Promise(resolve => setTimeout(resolve, delayMs));
+        }
+    }
+    throw new Error('GitHub API request failed after retries');
+}
+
 export async function getLatestRelease(): Promise<ReleaseInfo> {
     try {
-        const response = await axios.get(GITHUB_API_URL, {
-            timeout: TIMEOUT_MS,
-            headers: { 'User-Agent': 'cloudsqlctl/upgrade' }
-        });
+        const response = await githubGet<ReleaseInfo>(GITHUB_API_URL);
         return response.data;
     } catch (error) {
         logger.error('Failed to fetch latest release info', error);
@@ -50,10 +101,7 @@ function normalizeTag(tag: string): string {
 
 export async function getReleaseByTag(tag: string): Promise<ReleaseInfo> {
     try {
-        const response = await axios.get(`${GITHUB_RELEASE_TAG_URL}/${normalizeTag(tag)}`, {
-            timeout: TIMEOUT_MS,
-            headers: { 'User-Agent': 'cloudsqlctl/upgrade' }
-        });
+        const response = await githubGet<ReleaseInfo>(`${GITHUB_RELEASE_TAG_URL}/${normalizeTag(tag)}`);
         return response.data;
     } catch (error) {
         logger.error('Failed to fetch release by tag', error);
@@ -63,10 +111,7 @@ export async function getReleaseByTag(tag: string): Promise<ReleaseInfo> {
 
 export async function getLatestPrerelease(): Promise<ReleaseInfo> {
     try {
-        const response = await axios.get(GITHUB_RELEASES_URL, {
-            timeout: TIMEOUT_MS,
-            headers: { 'User-Agent': 'cloudsqlctl/upgrade' }
-        });
+        const response = await githubGet<ReleaseInfo[]>(GITHUB_RELEASES_URL);
         const releases = Array.isArray(response.data) ? response.data : [];
         const prerelease = releases.find((r: { prerelease?: boolean; draft?: boolean }) => r.prerelease && !r.draft);
         if (!prerelease) {
@@ -123,7 +168,8 @@ export async function fetchSha256Sums(release: ReleaseInfo): Promise<Map<string,
 
     const response = await axios.get(checksumAsset.browser_download_url, {
         responseType: 'text',
-        timeout: TIMEOUT_MS
+        timeout: TIMEOUT_MS,
+        headers: getGithubHeaders()
     });
 
     const sums = new Map<string, string>();
