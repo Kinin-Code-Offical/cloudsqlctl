@@ -321,9 +321,25 @@ try {
     if ($p) { $p.WaitForExit() }
 } catch {}
 
+Write-Host "Staging new binary..."
+$TempExe = "$TargetExe.tmp"
+Copy-Item -Path $NewExe -Destination $TempExe -Force
+
 Write-Host "Swapping binaries..."
-Move-Item -Path $TargetExe -Destination $BackupExe -Force -ErrorAction SilentlyContinue
-Move-Item -Path $NewExe -Destination $TargetExe -Force
+try {
+    Move-Item -Path $TargetExe -Destination $BackupExe -Force -ErrorAction SilentlyContinue
+    Move-Item -Path $TempExe -Destination $TargetExe -Force
+    Remove-Item -Path $BackupExe -Force -ErrorAction SilentlyContinue
+} catch {
+    Write-Host "Swap failed, attempting rollback..."
+    if (Test-Path $BackupExe) {
+        Move-Item -Path $BackupExe -Destination $TargetExe -Force -ErrorAction SilentlyContinue
+    }
+    if (Test-Path $TempExe) {
+        Remove-Item -Path $TempExe -Force -ErrorAction SilentlyContinue
+    }
+    throw
+}
 
 Write-Host "Starting new version..."
 Start-Process -FilePath $TargetExe -ArgumentList "--version"
