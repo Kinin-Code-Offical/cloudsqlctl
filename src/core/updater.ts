@@ -58,34 +58,37 @@ export async function downloadProxy(version: string, targetPath: string = PATHS.
         // Ensure directory exists
         await fs.ensureDir(path.dirname(targetPath));
 
-        const writer = fs.createWriteStream(targetPath);
+        const tmpPath = `${targetPath}.download`;
+        await fs.remove(tmpPath);
+
+        const writer = fs.createWriteStream(tmpPath);
         const responseStream = await axios({
             url: downloadUrl,
             method: 'GET',
             responseType: 'stream'
         });
 
-        responseStream.data.pipe(writer);
-
-        await new Promise((resolve, reject) => {
-            writer.on('finish', resolve);
-            writer.on('error', reject);
-        });
-
-        logger.info('Download complete.');
-
-        logger.info('Verifying checksum...');
         try {
-            const isValid = await verifyChecksum(targetPath, expectedChecksum);
+            responseStream.data.pipe(writer);
 
+            await new Promise((resolve, reject) => {
+                writer.on('finish', resolve);
+                writer.on('error', reject);
+            });
+
+            logger.info('Download complete.');
+
+            logger.info('Verifying checksum...');
+            const isValid = await verifyChecksum(tmpPath, expectedChecksum);
             if (!isValid) {
                 throw new Error('Checksum verification failed');
             }
             logger.info('Checksum verified.');
+
+            await fs.move(tmpPath, targetPath, { overwrite: true });
         } catch (err) {
-            logger.warn('Failed to verify checksum', err);
-            // If verification fails, we should probably remove the file
-            await fs.remove(targetPath);
+            logger.warn('Failed to download/verify proxy', err);
+            await fs.remove(tmpPath);
             throw err;
         }
 
