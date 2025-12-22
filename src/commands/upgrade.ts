@@ -1,6 +1,7 @@
 import { Command } from 'commander';
 import path from 'path';
 import { logger } from '../core/logger.js';
+import { readConfig, writeConfig } from '../core/config.js';
 import { USER_PATHS } from '../system/paths.js';
 import {
     checkForUpdates,
@@ -28,16 +29,38 @@ export const upgradeCommand = new Command('upgrade')
     .option('--force', 'Force update even if version is same or older')
     .option('--no-silent', 'Run installer in interactive mode (installer only)')
     .option('--no-elevate', 'Do not attempt to elevate privileges (installer only)')
+    .option('--channel <channel>', 'Update channel (stable or beta)')
+    .option('--version <version>', 'Install a specific version (e.g. 0.4.14 or v0.4.14)')
+    .option('--pin <version>', 'Pin to a specific version for future upgrades')
+    .option('--unpin', 'Clear pinned version')
     .option('--json', 'Output status in JSON format')
     .action(async (options) => {
         try {
             const currentVersion = process.env.CLOUDSQLCTL_VERSION || '0.0.0';
+            const config = await readConfig();
+            const channel = (options.channel || config.updateChannel || 'stable') as 'stable' | 'beta';
 
-            if (!options.json) {
-                logger.info(`Checking for updates (Current: v${currentVersion})...`);
+            if (channel !== 'stable' && channel !== 'beta') {
+                throw new Error(`Invalid channel '${channel}'. Use 'stable' or 'beta'.`);
             }
 
-            const status = await checkForUpdates(currentVersion);
+            if (options.unpin) {
+                await writeConfig({ pinnedVersion: undefined });
+            }
+
+            if (options.pin) {
+                await writeConfig({ pinnedVersion: options.pin, updateChannel: channel });
+            } else if (options.channel) {
+                await writeConfig({ updateChannel: channel });
+            }
+            const targetVersion = options.version || options.pin || (!options.unpin ? config.pinnedVersion : undefined);
+
+            if (!options.json) {
+                const suffix = targetVersion ? ` (target: ${targetVersion})` : '';
+                logger.info(`Checking for updates (Current: v${currentVersion}, channel: ${channel})${suffix}...`);
+            }
+
+            const status = await checkForUpdates(currentVersion, { channel, targetVersion });
 
             if (options.json) {
                 console.log(JSON.stringify(status, null, 2));
