@@ -31,6 +31,7 @@ Full documentation is available in the [docs](docs/) folder:
   - [Configuration & Setup](docs/Configuration.md)
   - [Command Reference](docs/commands.md)
   - [Distribution](docs/Distribution.md)
+  - [Enterprise Policy](docs/Policy.md)
   - [Troubleshooting](docs/Troubleshooting.md)
 
 ## Quick Start

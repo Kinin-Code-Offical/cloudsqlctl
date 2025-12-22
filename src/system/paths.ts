@@ -25,6 +25,7 @@ export const SYSTEM_PATHS = {
     PROXY_EXE: path.join(PROGRAM_DATA, 'CloudSQLCTL', 'bin', 'cloud-sql-proxy.exe'),
     SCRIPTS: path.join(PROGRAM_DATA, 'CloudSQLCTL', 'scripts'),
     SECRETS: path.join(PROGRAM_DATA, 'CloudSQLCTL', 'secrets'),
+    POLICY_FILE: path.join(PROGRAM_DATA, 'CloudSQLCTL', 'policy.json'),
 };
 
 export const ENV_VARS = {

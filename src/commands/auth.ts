@@ -7,6 +7,7 @@ import { runPs } from '../system/powershell.js';
 import fs from 'fs-extra';
 import path from 'path';
 import inquirer from 'inquirer';
+import { readPolicy, assertPolicyAllowsAuth } from '../core/policy.js';
 
 export const authCommand = new Command('auth')
     .description('Manage authentication and credentials');
@@ -32,6 +33,8 @@ authCommand.command('login')
     .description('Login via gcloud')
     .action(async () => {
         try {
+            const policy = await readPolicy();
+            assertPolicyAllowsAuth(policy, 'login');
             await login();
             logger.info('Successfully logged in.');
         } catch (error) {
@@ -44,6 +47,8 @@ authCommand.command('adc')
     .description('Setup Application Default Credentials')
     .action(async () => {
         try {
+            const policy = await readPolicy();
+            assertPolicyAllowsAuth(policy, 'adc');
             await adcLogin();
             logger.info('ADC configured successfully.');
         } catch (error) {
@@ -78,6 +83,8 @@ authCommand.command('set-service-account')
         }
 
         try {
+            const policy = await readPolicy();
+            assertPolicyAllowsAuth(policy, 'set-service-account', scope);
             if (!await fs.pathExists(file)) {
                 logger.error(`File not found: ${file}`);
                 process.exit(1);

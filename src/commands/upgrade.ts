@@ -3,6 +3,7 @@ import path from 'path';
 import { logger } from '../core/logger.js';
 import { readConfig, writeConfig } from '../core/config.js';
 import { USER_PATHS } from '../system/paths.js';
+import { readPolicy, resolveUpgradePolicy } from '../core/policy.js';
 import {
     checkForUpdates,
     pickAsset,
@@ -37,8 +38,16 @@ export const upgradeCommand = new Command('upgrade')
     .action(async (options) => {
         try {
             const currentVersion = process.env.CLOUDSQLCTL_VERSION || '0.0.0';
+            const policy = await readPolicy();
             const config = await readConfig();
-            const channel = (options.channel || config.updateChannel || 'stable') as 'stable' | 'beta';
+            const policyResolved = resolveUpgradePolicy(policy, {
+                channel: options.channel,
+                version: options.version,
+                pin: options.pin,
+                unpin: options.unpin
+            });
+
+            const channel = ((policyResolved.channel || options.channel || config.updateChannel || 'stable') as 'stable' | 'beta');
 
             if (channel !== 'stable' && channel !== 'beta') {
                 throw new Error(`Invalid channel '${channel}'. Use 'stable' or 'beta'.`);
@@ -53,7 +62,7 @@ export const upgradeCommand = new Command('upgrade')
             } else if (options.channel) {
                 await writeConfig({ updateChannel: channel });
             }
-            const targetVersion = options.version || options.pin || (options.unpin ? undefined : config.pinnedVersion);
+            const targetVersion = policyResolved.targetVersion || options.version || options.pin || (options.unpin ? undefined : config.pinnedVersion);
 
             if (!options.json) {
                 const suffix = targetVersion ? ` (target: ${targetVersion})` : '';
