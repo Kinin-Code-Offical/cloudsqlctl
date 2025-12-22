@@ -2,6 +2,12 @@
 
 # Changelog
 
+## [0.4.17] - 2025-12-22
+
+### Changed
+
+- include zip checksum in SHA256SUMS.txt
+
 ## [0.4.16] - 2025-12-22
 
 ### Changed
