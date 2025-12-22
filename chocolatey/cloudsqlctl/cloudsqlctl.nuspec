@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>cloudsqlctl</id>
+    <version>0.4.15</version>
+    <title>CloudSQLCTL</title>
+    <authors>Kinin-Code-Offical</authors>
+    <owners>Kinin-Code-Offical</owners>
+    <license type="expression">MIT</license>
+    <projectUrl>https://github.com/Kinin-Code-Offical/cloudsqlctl</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>Windows-native CLI to install, update, and manage Google Cloud SQL Auth Proxy via gcloud.</description>
+    <tags>windows cli gcloud cloud-sql</tags>
+  </metadata>
+  <files>
+    <file src="tools\**" target="tools" />
+  </files>
+</package>
+
+

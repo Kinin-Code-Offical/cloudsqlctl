@@ -1,0 +1,10 @@
+VERIFICATION
+============
+
+This package downloads the release zip from:
+https://github.com/Kinin-Code-Offical/cloudsqlctl/releases
+
+To verify contents:
+1) Download the matching `SHA256SUMS.txt` for the release tag.
+2) Confirm the zip hash matches the entry for `cloudsqlctl-windows-x64.zip`.
+
