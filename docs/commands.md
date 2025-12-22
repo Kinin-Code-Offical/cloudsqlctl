@@ -1,7 +1,7 @@
 # Cloud SQL Proxy CLI Reference
 
-**Version:** 0.4.13
-**Generated:** 2025-12-21
+**Version:** 0.4.14
+**Generated:** 2025-12-22
 
 ## Overview
 
@@ -40,6 +40,7 @@ Commands:
   paths                         Show resolved system paths and configuration
                                 locations
   upgrade [options]             Upgrade cloudsqlctl to the latest version
+  support                       Support utilities
   help [command]                display help for command
 ```
 
@@ -327,4 +328,20 @@ Options:
   --no-elevate    Do not attempt to elevate privileges (installer only)
   --json          Output status in JSON format
   -h, --help      display help for command
+```
+
+### support
+
+```text
+Usage: cloudsqlctl support [options] [command]
+
+Support utilities
+
+Options:
+  -h, --help        display help for command
+
+Commands:
+  bundle [options]  Create a support bundle zip with logs, config, doctor,
+                    paths, and status
+  help [command]    display help for command
 ```

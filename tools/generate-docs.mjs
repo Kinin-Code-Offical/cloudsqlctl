@@ -68,6 +68,7 @@ async function generateDocs() {
     'setup',
     'paths',
     'upgrade',
+    'support',
   ];
 
   content += `## Commands\n\n`;
