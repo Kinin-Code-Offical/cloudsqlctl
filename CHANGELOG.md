@@ -2,6 +2,15 @@
 
 # Changelog
 
+## [0.4.15] - 2025-12-22
+
+### Changed
+
+- add support bundle command and docs updates
+- add upgrade channels, pinning, and GitHub API hardening
+- enforce deterministic proxy checksum verification and safer portable swap
+- add npm publish workflow and package contents whitelist
+
 ## [0.4.14] - 2025-12-21
 
 ### Changed
