@@ -4,7 +4,6 @@ import crypto from 'crypto';
 import path from 'path';
 import { PATHS } from '../system/paths.js';
 import { logger } from './logger.js';
-import { escapeRegExp } from './utils.js';
 
 const GITHUB_REPO = 'GoogleCloudPlatform/cloud-sql-proxy';
 const ASSET_NAME = 'cloud-sql-proxy.x64.exe';
@@ -39,23 +38,20 @@ export async function downloadProxy(version: string, targetPath: string = PATHS.
 
     try {
         const releaseUrl = `https://api.github.com/repos/${GITHUB_REPO}/releases/tags/${version}`;
-        const response = await axios.get(releaseUrl);
+        await axios.get(releaseUrl);
 
         // Google Cloud SQL Proxy v2 binaries are hosted on GCS
         downloadUrl = `https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/${version}/${ASSET_NAME}`;
 
-        // Extract checksum from release body
-        const { body } = response.data;
-        // Regex to match: | [cloud-sql-proxy.x64.exe](...) | <hash> |
-        const escapedAssetName = escapeRegExp(ASSET_NAME);
-        const checksumRegex = new RegExp(`\\| \\[${escapedAssetName}\\]\\(.*?\\) \\| ([a-f0-9]{64}) \\|`);
-        const match = body.match(checksumRegex);
-
-        if (match && match[1]) {
-            expectedChecksum = match[1];
-        } else {
-            logger.warn(`Could not extract checksum for ${ASSET_NAME} from release notes.`);
+        // Fetch checksum from deterministic GCS sidecar file
+        const checksumUrl = `${downloadUrl}.sha256`;
+        const checksumResponse = await axios.get(checksumUrl, { responseType: 'text' });
+        const checksumText = String(checksumResponse.data).trim();
+        const checksumMatch = checksumText.match(/[a-f0-9]{64}/i);
+        if (!checksumMatch) {
+            throw new Error(`Checksum file did not contain a valid SHA256 hash (${checksumUrl})`);
         }
+        expectedChecksum = checksumMatch[0];
 
         logger.info(`Downloading ${ASSET_NAME} from ${downloadUrl}...`);
 
@@ -78,23 +74,19 @@ export async function downloadProxy(version: string, targetPath: string = PATHS.
 
         logger.info('Download complete.');
 
-        if (expectedChecksum) {
-            logger.info('Verifying checksum...');
-            try {
-                const isValid = await verifyChecksum(targetPath, expectedChecksum);
+        logger.info('Verifying checksum...');
+        try {
+            const isValid = await verifyChecksum(targetPath, expectedChecksum);
 
-                if (!isValid) {
-                    throw new Error('Checksum verification failed');
-                }
-                logger.info('Checksum verified.');
-            } catch (err) {
-                logger.warn('Failed to verify checksum', err);
-                // If verification fails, we should probably remove the file
-                await fs.remove(targetPath);
-                throw err;
+            if (!isValid) {
+                throw new Error('Checksum verification failed');
             }
-        } else {
-            logger.warn('Skipping checksum verification (checksum not found).');
+            logger.info('Checksum verified.');
+        } catch (err) {
+            logger.warn('Failed to verify checksum', err);
+            // If verification fails, we should probably remove the file
+            await fs.remove(targetPath);
+            throw err;
         }
 
     } catch (error) {
