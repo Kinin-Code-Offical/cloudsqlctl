@@ -317,17 +317,21 @@ Usage: cloudsqlctl upgrade [options]
 Upgrade cloudsqlctl to the latest version
 
 Options:
-  --check-only    Only check for updates, do not download or install
-  --no-install    Download only, do not install
-  --asset <mode>  Asset type to download (auto, installer, exe) (default:
-                  "auto")
-  --dir <path>    Download directory (default:
-                  "<USER_HOME>\\AppData\\Local\\CloudSQLCTL\\downloads\\updates")
-  --force         Force update even if version is same or older
-  --no-silent     Run installer in interactive mode (installer only)
-  --no-elevate    Do not attempt to elevate privileges (installer only)
-  --json          Output status in JSON format
-  -h, --help      display help for command
+  --check-only         Only check for updates, do not download or install
+  --no-install         Download only, do not install
+  --asset <mode>       Asset type to download (auto, installer, exe) (default:
+                       "auto")
+  --dir <path>         Download directory (default:
+                       "<USER_HOME>\\AppData\\Local\\CloudSQLCTL\\downloads\\updates")
+  --force              Force update even if version is same or older
+  --no-silent          Run installer in interactive mode (installer only)
+  --no-elevate         Do not attempt to elevate privileges (installer only)
+  --channel <channel>  Update channel (stable or beta)
+  --version <version>  Install a specific version (e.g. 0.4.14 or v0.4.14)
+  --pin <version>      Pin to a specific version for future upgrades
+  --unpin              Clear pinned version
+  --json               Output status in JSON format
+  -h, --help           display help for command
 ```
 
 ### support

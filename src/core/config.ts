@@ -10,6 +10,8 @@ export interface AppConfig {
     lastUpdateCheck?: string;
     lastUpdateAvailableVersion?: string;
     gcloudPath?: string;
+    updateChannel?: 'stable' | 'beta';
+    pinnedVersion?: string;
 }
 
 export async function ensureDirs() {

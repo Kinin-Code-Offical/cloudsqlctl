@@ -10,6 +10,8 @@ import { writeConfig } from './config.js';
 const REPO_OWNER = 'Kinin-Code-Offical';
 const REPO_NAME = 'cloudsqlctl';
 const GITHUB_API_URL = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest`;
+const GITHUB_RELEASES_URL = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases`;
+const GITHUB_RELEASE_TAG_URL = `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/tags`;
 const TIMEOUT_MS = 60000;
 const MAX_RETRIES = 2;
 
@@ -42,8 +44,53 @@ export async function getLatestRelease(): Promise<ReleaseInfo> {
     }
 }
 
-export async function checkForUpdates(currentVersion: string): Promise<UpdateStatus> {
-    const release = await getLatestRelease();
+function normalizeTag(tag: string): string {
+    return tag.startsWith('v') ? tag : `v${tag}`;
+}
+
+export async function getReleaseByTag(tag: string): Promise<ReleaseInfo> {
+    try {
+        const response = await axios.get(`${GITHUB_RELEASE_TAG_URL}/${normalizeTag(tag)}`, {
+            timeout: TIMEOUT_MS,
+            headers: { 'User-Agent': 'cloudsqlctl/upgrade' }
+        });
+        return response.data;
+    } catch (error) {
+        logger.error('Failed to fetch release by tag', error);
+        throw error;
+    }
+}
+
+export async function getLatestPrerelease(): Promise<ReleaseInfo> {
+    try {
+        const response = await axios.get(GITHUB_RELEASES_URL, {
+            timeout: TIMEOUT_MS,
+            headers: { 'User-Agent': 'cloudsqlctl/upgrade' }
+        });
+        const releases = Array.isArray(response.data) ? response.data : [];
+        const prerelease = releases.find((r: { prerelease?: boolean; draft?: boolean }) => r.prerelease && !r.draft);
+        if (!prerelease) {
+            throw new Error('No prerelease found');
+        }
+        return prerelease;
+    } catch (error) {
+        logger.error('Failed to fetch latest prerelease info', error);
+        throw error;
+    }
+}
+
+export async function checkForUpdates(
+    currentVersion: string,
+    options: { channel?: 'stable' | 'beta'; targetVersion?: string } = {}
+): Promise<UpdateStatus> {
+    let release: ReleaseInfo;
+    if (options.targetVersion) {
+        release = await getReleaseByTag(options.targetVersion);
+    } else if (options.channel === 'beta') {
+        release = await getLatestPrerelease();
+    } else {
+        release = await getLatestRelease();
+    }
     // Remove 'v' prefix if present for semver comparison
     const latestVer = release.tag_name.replace(/^v/, '');
     const currentVer = currentVersion.replace(/^v/, '');
