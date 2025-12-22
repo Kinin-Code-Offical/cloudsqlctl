@@ -33,7 +33,9 @@ describe('Self Update Module', () => {
             { name: 'cloudsqlctl-setup.exe', browser_download_url: 'http://example.com/setup' },
             { name: 'SHA256SUMS.txt', browser_download_url: 'http://example.com/sums' }
         ],
-        body: 'Release notes'
+        body: 'Release notes',
+        prerelease: false,
+        draft: false
     };
 
     beforeEach(() => {

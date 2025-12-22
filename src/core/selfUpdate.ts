@@ -23,6 +23,8 @@ export interface ReleaseInfo {
         browser_download_url: string;
     }>;
     body: string;
+    prerelease: boolean;
+    draft: boolean;
 }
 
 export interface UpdateStatus {
@@ -113,7 +115,7 @@ export async function getLatestPrerelease(): Promise<ReleaseInfo> {
     try {
         const response = await githubGet<ReleaseInfo[]>(GITHUB_RELEASES_URL);
         const releases = Array.isArray(response.data) ? response.data : [];
-        const prerelease = releases.find((r: { prerelease?: boolean; draft?: boolean }) => r.prerelease && !r.draft);
+        const prerelease = releases.find(r => r.prerelease && !r.draft);
         if (!prerelease) {
             throw new Error('No prerelease found');
         }

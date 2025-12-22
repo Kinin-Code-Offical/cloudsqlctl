@@ -53,7 +53,7 @@ export const upgradeCommand = new Command('upgrade')
             } else if (options.channel) {
                 await writeConfig({ updateChannel: channel });
             }
-            const targetVersion = options.version || options.pin || (!options.unpin ? config.pinnedVersion : undefined);
+            const targetVersion = options.version || options.pin || (options.unpin ? undefined : config.pinnedVersion);
 
             if (!options.json) {
                 const suffix = targetVersion ? ` (target: ${targetVersion})` : '';
