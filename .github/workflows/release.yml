@@ -24,6 +24,21 @@ jobs:
         with:
           ref: ${{ env.RELEASE_TAG }}
 
+      - name: Prepare signing certificate
+        shell: pwsh
+        env:
+          CLOUDSQLCTL_SIGN_CERT_B64: ${{ secrets.CLOUDSQLCTL_SIGN_CERT_B64 }}
+          CLOUDSQLCTL_SIGN_PWD: ${{ secrets.CLOUDSQLCTL_SIGN_PWD }}
+        run: |
+          if (-not $env:CLOUDSQLCTL_SIGN_CERT_B64) {
+            Write-Host "Signing cert not provided; skipping signing setup."
+            exit 0
+          }
+          $certPath = Join-Path $env:RUNNER_TEMP "cloudsqlctl-signing.pfx"
+          [IO.File]::WriteAllBytes($certPath, [Convert]::FromBase64String($env:CLOUDSQLCTL_SIGN_CERT_B64))
+          "CLOUDSQLCTL_SIGN_CERT=$certPath" | Out-File -FilePath $env:GITHUB_ENV -Append
+          "CLOUDSQLCTL_SIGN_PWD=$env:CLOUDSQLCTL_SIGN_PWD" | Out-File -FilePath $env:GITHUB_ENV -Append
+
       - name: Use Node.js 22.x
         uses: actions/setup-node@v4
         with:
@@ -53,6 +68,13 @@ jobs:
 
       - name: Build Installer
         run: npm run installer
+
+      - name: Sign artifacts
+        if: ${{ env.CLOUDSQLCTL_SIGN_CERT != '' }}
+        shell: pwsh
+        run: |
+          powershell -ExecutionPolicy Bypass -File tools/sign-exe.ps1 -ExePath "bin/cloudsqlctl.exe"
+          powershell -ExecutionPolicy Bypass -File tools/sign-exe.ps1 -ExePath "dist/cloudsqlctl-setup.exe"
 
       - name: Generate Docs
         run: npm run docs:generate
