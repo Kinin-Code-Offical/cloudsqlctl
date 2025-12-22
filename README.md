@@ -51,6 +51,7 @@ For a complete reference of all commands and options, see the [Command Reference
 | `auth`    | Manage authentication (Login, ADC, Service Accounts).    |
 | `install` | Download and install the Cloud SQL Proxy binary.         |
 | `update`  | Update the Cloud SQL Proxy binary to the latest version. |
+| `upgrade` | Upgrade cloudsqlctl to the latest version.               |
 | `list`    | List available Cloud SQL instances.                      |
 | `select`  | Interactively select a Cloud SQL instance to proxy.      |
 | `connect` | Connect to a specific instance directly.                 |
@@ -60,8 +61,13 @@ For a complete reference of all commands and options, see the [Command Reference
 | `env`     | Manage environment variables (User/Machine scope).       |
 | `gcloud`  | Manage Google Cloud CLI (install portable version).      |
 | `status`  | Check if the proxy is running and view details.          |
+| `paths`   | Show resolved paths and configuration locations.         |
 | `logs`    | View the tail of the proxy logs.                         |
 | `doctor`  | Run diagnostics to verify environment setup.             |
+| `check`   | Verify full system configuration.                        |
+| `repair`  | Self-heal missing or corrupted files/config.             |
+| `ps1`     | Manage PowerShell scripts.                               |
+| `support` | Create a support bundle zip for troubleshooting.         |
 | `reset`   | Reset configuration and remove local files.              |
 
 ### Authentication Modes
@@ -146,6 +152,8 @@ This project uses GitHub Actions for automated releases.
 1. Tag a new version: `git tag v0.3.0`
 2. Push the tag: `git push origin v0.3.0`
 3. The workflow will build, test, sign (if configured), and publish artifacts to the [Releases](https://github.com/Kinin-Code-Offical/cloudsqlctl/releases) page.
+4. If a rerun is needed, use the Release workflow `workflow_dispatch` with the tag input.
+5. NPM publish runs on release publication (requires `NPM_TOKEN` secret).
 
 ## Troubleshooting
 
