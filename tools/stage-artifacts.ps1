@@ -28,7 +28,23 @@ else {
 
 Copy-Item $ExeSource -Destination $ArtifactsDir
 
-# 3. Generate SHA256 Checksums
+# 3. Create Distribution Zip
+$ZipPath = Join-Path $ArtifactsDir "cloudsqlctl-windows-x64.zip"
+$FilesToZip = @(
+    (Join-Path $ArtifactsDir "cloudsqlctl.exe"),
+    (Join-Path $ArtifactsDir "cloudsqlctl-setup.exe"),
+    (Join-Path $Root "README.md"),
+    (Join-Path $Root "LICENSE"),
+    (Join-Path $Root "docs/commands.md"),
+    (Join-Path $Root "CHANGELOG.md")
+)
+
+# Filter existing files only
+$FilesToZip = $FilesToZip | Where-Object { Test-Path $_ }
+
+Compress-Archive -Path $FilesToZip -DestinationPath $ZipPath -Force
+
+# 4. Generate SHA256 Checksums
 $ChecksumFile = Join-Path $ArtifactsDir "SHA256SUMS.txt"
 
 function Get-Sha256Hash {
@@ -46,26 +62,11 @@ function Get-Sha256Hash {
     }
 }
 
-Get-ChildItem $ArtifactsDir -Filter "*.exe" | ForEach-Object {
+$ArtifactsToHash = Get-ChildItem $ArtifactsDir | Where-Object { $_.Extension -in @('.exe', '.zip') } | Sort-Object Name
+$ArtifactsToHash | ForEach-Object {
     $hash = Get-Sha256Hash -FilePath $_.FullName
     "$hash  $($_.Name)"
 } | Out-File -Encoding ASCII $ChecksumFile
-
-# 4. Create Distribution Zip
-$ZipPath = Join-Path $ArtifactsDir "cloudsqlctl-windows-x64.zip"
-$FilesToZip = @(
-    (Join-Path $ArtifactsDir "cloudsqlctl.exe"),
-    (Join-Path $ArtifactsDir "cloudsqlctl-setup.exe"),
-    (Join-Path $Root "README.md"),
-    (Join-Path $Root "LICENSE"),
-    (Join-Path $Root "docs/commands.md"),
-    (Join-Path $Root "CHANGELOG.md")
-)
-
-# Filter existing files only
-$FilesToZip = $FilesToZip | Where-Object { Test-Path $_ }
-
-Compress-Archive -Path $FilesToZip -DestinationPath $ZipPath -Force
 
 Write-Host "Artifacts staged successfully in $ArtifactsDir"
 Get-ChildItem $ArtifactsDir | Select-Object Name, Length
