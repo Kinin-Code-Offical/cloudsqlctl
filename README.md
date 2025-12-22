@@ -15,7 +15,12 @@
 
 ## Installation
 
-Download the latest installer (`cloudsqlctl-setup.exe`) from the [Releases](https://github.com/Kinin-Code-Offical/cloudsqlctl/releases) page.
+Primary distribution is via GitHub Releases:
+- Download the latest installer (`cloudsqlctl-setup.exe`) from the [Releases](https://github.com/Kinin-Code-Offical/cloudsqlctl/releases) page.
+
+Optional/community distribution:
+- Scoop: see `scoop/README.md`
+- Winget/Chocolatey: see `docs/Distribution.md`
 
 ## Documentation
 
@@ -23,9 +28,10 @@ Full documentation is available in the [docs](docs/) folder:
 
 - [**Wiki Home**](docs/Home.md)
 - [Installation Guide](docs/Installation.md)
-- [Configuration & Setup](docs/Configuration.md)
-- [Command Reference](docs/commands.md)
-- [Troubleshooting](docs/Troubleshooting.md)
+  - [Configuration & Setup](docs/Configuration.md)
+  - [Command Reference](docs/commands.md)
+  - [Distribution](docs/Distribution.md)
+  - [Troubleshooting](docs/Troubleshooting.md)
 
 ## Quick Start
 

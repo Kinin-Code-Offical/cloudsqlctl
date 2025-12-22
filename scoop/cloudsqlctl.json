@@ -1,0 +1,11 @@
+{
+    "version":  "0.4.15",
+    "description":  "Windows-native CLI to install, update, and manage Google Cloud SQL Auth Proxy via gcloud.",
+    "homepage":  "https://github.com/Kinin-Code-Offical/cloudsqlctl",
+    "license":  "MIT",
+    "url":  "https://github.com/Kinin-Code-Offical/cloudsqlctl/releases/download/v0.4.15/cloudsqlctl-windows-x64.zip",
+    "hash":  "e6a65a7cec3a858bc3affb002e07ee04c09fd6ac42beac5811458deedd62ef84",
+    "bin":  [
+                "cloudsqlctl.exe"
+            ]
+}

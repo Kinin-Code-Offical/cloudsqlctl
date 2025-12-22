@@ -1,0 +1,16 @@
+PackageIdentifier: KininCodeOffical.CloudSQLCTL
+PackageVersion: 0.4.15
+PackageName: CloudSQLCTL
+Publisher: Kinin-Code-Offical
+License: MIT
+ShortDescription: Windows-native CLI to install, update, and manage Google Cloud SQL Auth Proxy via gcloud.
+PackageUrl: https://github.com/Kinin-Code-Offical/cloudsqlctl
+InstallerType: inno
+Installers:
+  - Architecture: x64
+    InstallerUrl: https://github.com/Kinin-Code-Offical/cloudsqlctl/releases/download/v0.4.15/cloudsqlctl-setup.exe
+    InstallerSha256: 999c07b5957a70decc9754d7199dfef82c89cf1bdfa5d22ce0be7f6273a09d63
+ManifestType: singleton
+ManifestVersion: 1.6.0
+
+
