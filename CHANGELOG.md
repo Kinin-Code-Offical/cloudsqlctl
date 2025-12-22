@@ -2,6 +2,16 @@
 
 # Changelog
 
+## [0.4.14] - 2025-12-21
+
+### Changed
+
+- tighten ProgramData bin ACLs for system installs
+- add manual release workflow dispatch with tag input
+- delete existing release assets on same-tag reruns
+- enforce admin/elevation guardrails for system-scope upgrades
+- ignore artifacts output in .gitignore
+
 ## [0.4.13] - 2025-12-21
 
 ### Changed
