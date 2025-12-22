@@ -7,6 +7,12 @@
   "bin": {
     "cloudsqlctl": "./dist/cli.cjs"
   },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "engines": {
     "node": ">=22.0.0"
   },
