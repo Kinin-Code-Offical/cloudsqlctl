@@ -1,6 +1,6 @@
 # Cloud SQL Proxy CLI Reference
 
-**Version:** 0.5.1
+**Version:** 0.5.2
 **Generated:** 2026-03-02
 
 ## Overview
@@ -16,7 +16,7 @@ Options:
 
 Commands:
   install [options]             Download and install Cloud SQL Proxy
-  update                        Update Cloud SQL Proxy to the latest version
+  update [options]              Update Cloud SQL Proxy to the latest version
   select                        Select a Cloud SQL instance
   list [options]                List available Cloud SQL instances
   connect [options] <instance>  Connect to a specific Cloud SQL instance
@@ -41,6 +41,8 @@ Commands:
                                 locations
   upgrade [options]             Upgrade cloudsqlctl to the latest version
   support                       Support utilities
+  sync                          Mock remote sync features (GitHub-like push/pull
+                                for local environments)
   help [command]                display help for command
 ```
 
@@ -66,7 +68,13 @@ Usage: cloudsqlctl update [options]
 Update Cloud SQL Proxy to the latest version
 
 Options:
-  -h, --help  display help for command
+  --check-only         Only check latest version, do not download
+  --version <version>  Download a specific version tag (e.g. v2.18.2)
+  --base-url <url>     Custom download base URL for proxy binary/checksum
+  --timeout <ms>       HTTP timeout in milliseconds (default: "60000")
+  --retries <count>    Retry count for network operations (default: "2")
+  --json               Output machine-readable JSON result
+  -h, --help           display help for command
 ```
 
 ### select

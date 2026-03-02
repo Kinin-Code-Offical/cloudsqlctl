@@ -22,6 +22,7 @@ import { setupCommand } from './commands/setup.js';
 import { pathsCommand } from './commands/paths.js';
 import { upgradeCommand } from './commands/upgrade.js';
 import { supportCommand } from './commands/support.js';
+import { syncCommand } from './commands/sync.js';
 import { logger } from './core/logger.js';
 
 const program = new Command();
@@ -53,6 +54,7 @@ program.addCommand(setupCommand);
 program.addCommand(pathsCommand);
 program.addCommand(upgradeCommand);
 program.addCommand(supportCommand);
+program.addCommand(syncCommand);
 
 program.parseAsync(process.argv).catch(err => {
     logger.error('Unhandled error', err);

@@ -2,6 +2,12 @@
 
 # Changelog
 
+## [0.5.2] - 2026-03-02
+
+### Changed
+
+- Implement feature X to enhance user experience and fix bug Y in module Z
+
 ## [0.5.1] - 2026-03-02
 
 ### Changed
