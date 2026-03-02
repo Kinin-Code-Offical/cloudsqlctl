@@ -33,7 +33,7 @@ export async function listInstances(): Promise<GcloudInstance[]> {
         return JSON.parse(stdout);
     } catch (error) {
         if (isAuthError(error)) {
-            throw new Error('Authentication required. Please run "cloudsqlctl auth login".');
+            throw new Error('Authentication required. Please run "cloudsqlctl auth login".', { cause: error });
         }
         logger.error('Failed to list instances', error);
         throw error;

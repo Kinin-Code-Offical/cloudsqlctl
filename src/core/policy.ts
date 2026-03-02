@@ -42,7 +42,7 @@ export async function readPolicy(): Promise<EnterprisePolicy | null> {
     try {
         return JSON.parse(content) as EnterprisePolicy;
     } catch (error) {
-        throw new Error(`Invalid policy.json at ${policyPath}: ${error instanceof Error ? error.message : String(error)}`);
+        throw new Error(`Invalid policy.json at ${policyPath}: ${error instanceof Error ? error.message : String(error)}`, { cause: error });
     }
 }
 

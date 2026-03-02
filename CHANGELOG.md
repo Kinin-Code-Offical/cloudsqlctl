@@ -2,6 +2,22 @@
 
 # Changelog
 
+## [0.5.1] - 2026-03-02
+
+### Changed
+
+- bump @types/node from 25.0.3 to 25.1.0 (#55)
+- bump commander from 14.0.2 to 14.0.3 (#57)
+- bump prettier from 3.7.4 to 3.8.1 (#58)
+- bump axios in the npm_and_yarn group across 1 directory (#60)
+- bump inquirer from 13.1.0 to 13.2.2 (#59)
+- bump commander from 12.1.0 to 14.0.2 (#49)
+- bump inquirer from 9.3.8 to 13.1.0 (#50)
+- bump @types/extract-zip from 2.0.0 to 2.0.3 (#52)
+- bump typescript-eslint from 8.50.0 to 8.51.0 (#53)
+- bump globals from 16.5.0 to 17.0.0 (#54)
+- update commands reference for v0.5.0
+
 ## [0.5.0] - 2025-12-22
 
 ### Added
